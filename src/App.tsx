@@ -13,6 +13,8 @@ import { SkeletonLine, SkeletonCard, SkeletonHero } from './components/common/Sk
 import { attachGlobalErrorHandlers } from './utils/logger'
 import { buildCanonicalUrl, getSiteConfig, isValidCategory, isValidSlug } from './utils/security'
 import { useAuth } from './contexts/AuthContext'
+import { initReactSentry } from './utils/sentry'
+import { analytics } from './analytics'
 import NotFoundPage from './pages/NotFoundPage'
 import './App.css'
 
@@ -137,6 +139,11 @@ function Layout() {
     const t = setTimeout(() => setIsInitializing(false), 50)
     return () => clearTimeout(t)
   }, [])
+
+  // Track page views with analytics
+  useEffect(() => {
+    analytics.logPageView(location.pathname)
+  }, [location.pathname])
 
   const navigate = (path: string) => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
