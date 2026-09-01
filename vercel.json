@@ -4,7 +4,7 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "cleanUrls": true,
-  "trailingSlash": true,
+  "trailingSlash": false,
   "headers": [
     {
       "source": "/(.*)",
@@ -56,6 +56,6 @@
     }
   ],
   "rewrites": [
-    { "source": "/((?!api/|assets/|favicon.svg|site.webmanifest|robots.txt|sitemap.xml|og-default\\.jpg).*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
