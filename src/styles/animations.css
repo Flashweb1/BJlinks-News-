@@ -1,0 +1,385 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   ANIMATIONS & MICRO-INTERACTIONS
+   Professional entrance, feedback, and transition animations
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* ENTRANCE ANIMATIONS */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideLeft {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideRight {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Animation utilities */
+.animate-fade-in {
+  animation: fadeIn var(--duration-300) var(--ease-out);
+}
+
+.animate-slide-up {
+  animation: slideUp var(--duration-300) var(--ease-smooth);
+}
+
+.animate-slide-down {
+  animation: slideDown var(--duration-300) var(--ease-smooth);
+}
+
+.animate-slide-left {
+  animation: slideLeft var(--duration-300) var(--ease-smooth);
+}
+
+.animate-slide-right {
+  animation: slideRight var(--duration-300) var(--ease-smooth);
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--duration-300) var(--ease-smooth);
+}
+
+.animate-zoom-in {
+  animation: zoomIn var(--duration-300) var(--ease-smooth);
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* STAGGERED ANIMATIONS */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+.stagger-in > * {
+  animation: slideUp var(--duration-300) var(--ease-smooth);
+}
+
+.stagger-in > *:nth-child(1) { animation-delay: var(--duration-100); }
+.stagger-in > *:nth-child(2) { animation-delay: var(--duration-200); }
+.stagger-in > *:nth-child(3) { animation-delay: var(--duration-300); }
+.stagger-in > *:nth-child(4) { animation-delay: var(--duration-400); }
+.stagger-in > *:nth-child(n+5) { animation-delay: var(--duration-500); }
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* INTERACTIVE ANIMATIONS */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+@keyframes buttonPress {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.98);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes buttonHover {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* BUTTON INTERACTIONS */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+.btn {
+  transition: all var(--duration-200) var(--ease-smooth);
+}
+
+.btn:active:not(:disabled) {
+  animation: buttonPress var(--duration-150) var(--ease-bounce);
+}
+
+.btn:hover:not(:disabled) {
+  animation: buttonHover var(--duration-200) var(--ease-smooth);
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* LOADING ANIMATIONS */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+.pulse-animation {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.shimmer-animation {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-2) 0%,
+    var(--color-surface-3) 50%,
+    var(--color-surface-2) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* CARD ANIMATIONS */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+.card {
+  transition: all var(--duration-200) var(--ease-smooth);
+}
+
+.card-interactive:hover {
+  animation: none;
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-interactive:active {
+  transform: translateY(-2px);
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* MODAL ANIMATIONS */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+@keyframes modalSlideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-backdrop {
+  animation: backdropFadeIn var(--duration-200) var(--ease-out);
+}
+
+.modal {
+  animation: modalSlideIn var(--duration-300) var(--ease-smooth);
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* NOTIFICATION ANIMATIONS */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+}
+
+.notification {
+  animation: slideInRight var(--duration-300) var(--ease-smooth);
+}
+
+.notification.is-closing {
+  animation: slideOutRight var(--duration-200) var(--ease-smooth);
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* FORM ANIMATIONS */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+.input:invalid,
+.input[aria-invalid="true"] {
+  animation: shake var(--duration-300) var(--ease-bounce);
+}
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  animation: checkmark var(--duration-150) var(--ease-smooth);
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* TRANSITION UTILITIES */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+.transition-colors {
+  transition: background-color var(--duration-200) var(--ease-smooth),
+              color var(--duration-200) var(--ease-smooth),
+              border-color var(--duration-200) var(--ease-smooth);
+}
+
+.transition-all {
+  transition: all var(--duration-200) var(--ease-smooth);
+}
+
+.transition-none {
+  transition: none;
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* ACCESSIBILITY: RESPECT MOTION PREFERENCES */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Keep essential visual feedback */
+  :focus-visible {
+    outline: 3px solid var(--color-info);
+    outline-offset: 2px;
+  }
+}

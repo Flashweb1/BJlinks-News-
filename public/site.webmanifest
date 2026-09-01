@@ -1,0 +1,21 @@
+{
+  "name": "Bjlinks News",
+  "short_name": "Bjlinks",
+  "description": "Premium journalism covering politics, business, technology, and more from Nigeria and around the world.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#0a0a0a",
+  "orientation": "portrait-primary",
+  "lang": "en-NG",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["news", "magazines", "lifestyle"],
+  "prefer_related_applications": false
+}

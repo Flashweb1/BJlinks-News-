@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /bookmarks
+Disallow: /api/
+
+# Crawl directives
+Crawl-delay: 1
+
+# Sitemap
+Sitemap: https://bjlinksnews.com/sitemap.xml

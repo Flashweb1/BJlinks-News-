@@ -1,0 +1,117 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================================
+    // Helpers
+    // ============================================================
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function email() {
+      return request.auth.token.email.lower();
+    }
+
+    // Add emails here AND in VITE_ADMIN_EMAILS so they stay in sync.
+    // For stronger security, migrate to a Firestore 'admins' collection
+    // or Firebase custom claims (requires Cloud Functions to set).
+    function isAdmin() {
+      let allowed = [
+        'admin@bjlinksnews.com',
+      ];
+      return isSignedIn() && email() in allowed;
+    }
+
+    function isValidSlug(s) {
+      return s is string
+        && s.size() > 0
+        && s.size() <= 200
+        && s.matches('^[a-z0-9]+(?:-[a-z0-9]+)*$');
+    }
+
+    function isValidTags(tags) {
+      return tags is list
+        && tags.size() <= 10
+        && tags.hasOnly([
+          'Nigeria', 'Politics', 'Business', 'Tech', 'Health',
+          'Sports', 'Religion', 'Education', 'Stories', 'World', 'News',
+          'Delta State', 'Governance', 'Infrastructure', 'Finance',
+          'Markets', 'AI', 'Innovation', 'Education', 'Warri'
+        ]);
+    }
+
+    // ============================================================
+    // Articles
+    // ============================================================
+
+    match /articles/{articleId} {
+      // Published articles are public. Drafts/review require auth.
+      allow read: if resource.data.status == 'published'
+                  || isSignedIn();
+
+      // Create: must be authenticated editor (email in allowlist)
+      allow create: if isAdmin()
+                    && request.resource.data.slug is string
+                    && isValidSlug(request.resource.data.slug)
+                    && request.resource.data.title is string
+                    && request.resource.data.title.size() > 0
+                    && request.resource.data.title.size() <= 240
+                    && request.resource.data.dek is string
+                    && request.resource.data.dek.size() <= 600
+                    && request.resource.data.category is string
+                    && request.resource.data.category.size() > 0
+                    && request.resource.data.category.size() <= 40
+                    && request.resource.data.author is string
+                    && request.resource.data.body is list
+                    && request.resource.data.body.size() > 0
+                    && request.resource.data.body.size() <= 50
+                    && request.resource.data.tags is list
+                    && request.resource.data.tags.size() <= 10
+                    && request.resource.data.status in ['draft', 'review'];
+
+      // Update: same constraints; prevent non-admins from publishing
+      allow update: if isAdmin()
+                    && request.resource.data.slug is string
+                    && isValidSlug(request.resource.data.slug)
+                    && request.resource.data.title is string
+                    && request.resource.data.title.size() > 0
+                    && request.resource.data.title.size() <= 240
+                    && request.resource.data.dek is string
+                    && request.resource.data.dek.size() <= 600
+                    && request.resource.data.category is string
+                    && request.resource.data.body is list
+                    && request.resource.data.body.size() <= 50
+                    && request.resource.data.tags is list
+                    && request.resource.data.tags.size() <= 10
+                    // Only admins can publish
+                    && (
+                      resource.data.status == 'published'
+                      || request.resource.data.status != 'published'
+                      || isAdmin()
+                    );
+
+      // Delete: admin only
+      allow delete: if isAdmin();
+
+      // Sub-collection: comments (if added later)
+      match /comments/{commentId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn()
+                      && request.resource.data.author is string
+                      && request.resource.data.text is string
+                      && request.resource.data.text.size() <= 2000;
+        allow update, delete: if request.auth.uid == resource.data.uid || isAdmin();
+      }
+    }
+
+    // ============================================================
+    // Catch-all deny
+    // ============================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

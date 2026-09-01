@@ -1,0 +1,291 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN & MOBILE-FIRST APPROACH
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* MOBILE FIRST (320px+) */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+.page-content {
+  padding: 0 var(--space-4);
+}
+
+.container {
+  width: 100%;
+  padding: 0 var(--space-4);
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* SMALL DEVICES (sm: 640px+) */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 640px) {
+  .page-content {
+    padding: 0 var(--space-5);
+  }
+
+  .container {
+    padding: 0 var(--space-5);
+  }
+
+  .grid-cols-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* TABLETS (md: 768px+) */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 768px) {
+  .page-content {
+    padding: 0 var(--space-6);
+  }
+
+  .container {
+    padding: 0 var(--space-6);
+  }
+
+  .hide-on-mobile {
+    display: block;
+  }
+
+  .show-on-mobile {
+    display: none;
+  }
+
+  .grid-cols-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Button sizes increase on tablet */
+  .btn {
+    padding: var(--button-padding-y) var(--button-padding-x-lg);
+  }
+
+  /* Text size increases */
+  body {
+    font-size: 17px;
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* DESKTOP (lg: 1024px+) */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 1024px) {
+  .page-content {
+    padding: 0 var(--space-8);
+  }
+
+  .container {
+    padding: 0 var(--space-8);
+  }
+
+  .grid-cols-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Sidebar layouts become visible */
+  .sidebar {
+    display: block;
+  }
+
+  /* Hero sections scale up */
+  .hero {
+    min-height: 500px;
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* LARGE DESKTOP (xl: 1280px+) */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 1280px) {
+  .page-content {
+    padding: 0 var(--space-10);
+  }
+
+  /* Two-column layouts */
+  .grid-cols-2 {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* EXTRA LARGE DESKTOP (2xl: 1536px+) */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 1536px) {
+  .page-content {
+    max-width: 1400px;
+  }
+
+  .container {
+    max-width: 1400px;
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* TOUCH DEVICES */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Increase touch target sizes */
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    min-height: var(--touch-target);
+    min-width: var(--touch-target);
+  }
+
+  /* Remove hover effects on touch */
+  .btn:hover {
+    background-color: var(--btn-bg);
+  }
+
+  /* Increase spacing for touch */
+  .nav-link {
+    padding: var(--space-3);
+  }
+
+  /* Disable hover-only tooltips */
+  [data-tooltip]::after {
+    display: none;
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* PORTRAIT/LANDSCAPE ORIENTATION */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+@media (orientation: portrait) {
+  .page-content {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+}
+
+@media (orientation: landscape) {
+  /* Reduce padding on landscape */
+  .page-content {
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+  }
+
+  /* Reduce hero height on landscape */
+  .hero {
+    min-height: 300px;
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* HIGH RESOLUTION DISPLAYS (Retina) */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Thin borders become visible */
+  body {
+    border-width: 0.5px;
+  }
+
+  /* SVG icons remain crisp */
+  svg {
+    shape-rendering: crispEdges;
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* NARROW VIEWPORT FIX (for 200% zoom) */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 320px) {
+  body {
+    font-size: 14px;
+  }
+
+  .page-content {
+    padding: 0 var(--space-2);
+  }
+
+  .btn {
+    font-size: var(--text-sm);
+    padding: var(--space-2) var(--space-3);
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════ */
+/* UTILITY CLASSES */
+/* ═════════════════════════════════════════════════════════════════════ */
+
+.hide-mobile {
+  display: none;
+}
+
+.show-mobile {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .hide-mobile {
+    display: block;
+  }
+
+  .show-mobile {
+    display: none;
+  }
+
+  .hide-tablet {
+    display: none;
+  }
+
+  .show-tablet {
+    display: block;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hide-desktop {
+    display: none;
+  }
+
+  .show-desktop {
+    display: block;
+  }
+}
+
+/* Flex utilities */
+.flex-col-mobile {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .flex-col-mobile {
+    flex-direction: row;
+  }
+}
+
+/* Grid utilities */
+.grid-1-mobile {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .grid-2-tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-3-desktop {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

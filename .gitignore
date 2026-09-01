@@ -1,0 +1,61 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build output
+dist
+dist-ssr
+build
+out
+.vite
+
+# Environment / secrets — NEVER commit these
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+.env.development
+firebase.keys.json
+service-account.json
+google-credentials.json
+
+# Local override files
+*.local
+
+# Cache / lock artifacts
+.cache
+.parcel-cache
+.eslintcache
+.stylelintcache
+.vercel
+.netlify
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Coverage / test reports
+coverage
+.nyc_output
+
+# Snapshots (if using Percy/Chromatic via local)
+__snapshots__/*.new.*
