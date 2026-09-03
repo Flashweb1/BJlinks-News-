@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { ArrowLeft, Save, Eye, Send } from 'lucide-react'
 import type { Article } from '../../data/articles'
 import { categories } from '../../data/articles'
-import { addArticle, updateArticle, getArticleById } from '../../firebase/articles'
+import { addArticle, updateArticle, getArticleById, generateUniqueSlug } from '../../firebase/articles'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -99,7 +99,7 @@ export default function ArticleEditor({ onNavigate, articleId }: ArticleEditorPr
     const slug = normalizeSlug(`${cleanTitle || 'article'}${existingArticle?.slug || ''}`) || `article-${Date.now()}`
 
     if (!cleanTitle || !cleanDek || paragraphs.length === 0 || !isValidTags(tagArr)) {
-      setError('Please fill in headline, dek, body, and up to 10 tags (max 32 chars.')
+      setError('Please fill in headline, dek, body, and up to 10 tags (max 32 chars).')
       return null
     }
 
@@ -132,6 +132,7 @@ export default function ArticleEditor({ onNavigate, articleId }: ArticleEditorPr
     if (!valid) return
     setLoading(true)
     try {
+      const finalSlug = await generateUniqueSlug(valid.slug, existingArticle?.id)
       const base = {
         title: valid.title,
         dek: valid.dek,
@@ -149,7 +150,7 @@ export default function ArticleEditor({ onNavigate, articleId }: ArticleEditorPr
         result = await updateArticle(articleId, {
           ...existingArticle,
           ...base,
-          slug: valid.slug,
+          slug: finalSlug,
           author: valid.author,
           authorRole: valid.authorRole,
           publishedAt: valid.publishedAt,
@@ -157,7 +158,7 @@ export default function ArticleEditor({ onNavigate, articleId }: ArticleEditorPr
       } else {
         const payload: Omit<Article, 'id'> = {
           ...base,
-          slug: valid.slug,
+          slug: finalSlug,
           author: valid.author,
           authorRole: valid.authorRole,
           publishedAt: valid.publishedAt,

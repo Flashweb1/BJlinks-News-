@@ -25,6 +25,12 @@ const BookmarksPage = lazy(() => import('./pages/BookmarksPage'))
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 const ArticleEditor = lazy(() => import('./pages/admin/ArticleEditor'))
+const ArticlesPage = lazy(() => import('./pages/admin/ArticlesPage'))
+const MediaPage = lazy(() => import('./pages/admin/MediaPage'))
+const CommentsPage = lazy(() => import('./pages/admin/CommentsPage'))
+const AnalyticsPage = lazy(() => import('./pages/admin/AnalyticsPage'))
+const UsersPage = lazy(() => import('./pages/admin/UsersPage'))
+const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'))
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
 const TermsPage = lazy(() => import('./pages/TermsPage'))
 
@@ -36,6 +42,12 @@ type PageKind =
   | 'bookmarks'
   | 'admin-login'
   | 'admin-dashboard'
+  | 'admin-articles'
+  | 'admin-media'
+  | 'admin-comments'
+  | 'admin-analytics'
+  | 'admin-users'
+  | 'admin-settings'
   | 'admin-editor'
   | 'privacy'
   | 'terms'
@@ -47,7 +59,13 @@ function classifyPath(pathname: string): PageKind {
   if (pathname === '/search') return 'search'
   if (pathname === '/bookmarks') return 'bookmarks'
   if (pathname === '/admin/login') return 'admin-login'
-  if (pathname === '/admin' || pathname === '/admin/') return 'admin-dashboard'
+  if (pathname === '/admin') return 'admin-dashboard'
+  if (pathname === '/admin/articles') return 'admin-articles'
+  if (pathname === '/admin/media') return 'admin-media'
+  if (pathname === '/admin/comments') return 'admin-comments'
+  if (pathname === '/admin/analytics') return 'admin-analytics'
+  if (pathname === '/admin/users') return 'admin-users'
+  if (pathname === '/admin/settings') return 'admin-settings'
   if (pathname.startsWith('/admin/editor')) return 'admin-editor'
   if (pathname === '/privacy') return 'privacy'
   if (pathname === '/terms') return 'terms'
@@ -223,6 +241,54 @@ function Layout() {
                 element={
                   <RequireAdmin>
                     <AdminDashboard onNavigate={navigate} />
+                  </RequireAdmin>
+                }
+              />
+              <Route
+                path="/admin/articles"
+                element={
+                  <RequireAdmin>
+                    <ArticlesPage onNavigate={navigate} />
+                  </RequireAdmin>
+                }
+              />
+              <Route
+                path="/admin/media"
+                element={
+                  <RequireAdmin>
+                    <MediaPage onNavigate={navigate} />
+                  </RequireAdmin>
+                }
+              />
+              <Route
+                path="/admin/comments"
+                element={
+                  <RequireAdmin>
+                    <CommentsPage onNavigate={navigate} />
+                  </RequireAdmin>
+                }
+              />
+              <Route
+                path="/admin/analytics"
+                element={
+                  <RequireAdmin>
+                    <AnalyticsPage onNavigate={navigate} />
+                  </RequireAdmin>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <RequireAdmin>
+                    <UsersPage onNavigate={navigate} />
+                  </RequireAdmin>
+                }
+              />
+              <Route
+                path="/admin/settings"
+                element={
+                  <RequireAdmin>
+                    <SettingsPage onNavigate={navigate} />
                   </RequireAdmin>
                 }
               />

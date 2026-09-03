@@ -3,6 +3,7 @@ import { Chrome, Lock } from 'lucide-react'
 import { signInWithGoogle, signInWithEmail, createAccountWithEmail } from '../../firebase/auth'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { isAdminEmail } from '../../utils/security'
 
 interface AdminLoginProps {
   onNavigate?: (path: string) => void
@@ -61,6 +62,11 @@ export default function AdminLogin({ onNavigate }: AdminLoginProps) {
     setError(null)
     setLoading(true)
     try {
+      if (mode === 'signup' && !isAdminEmail(email)) {
+        setError('This email is not authorized as an editor. Please use a pre-approved admin email address.')
+        setLoading(false)
+        return
+      }
       const res =
         mode === 'signup'
           ? await createAccountWithEmail(email, password, name || undefined)
@@ -70,7 +76,7 @@ export default function AdminLogin({ onNavigate }: AdminLoginProps) {
         return
       }
       const goto = onNavigate ?? navigate
-      if (res.user && res.user.email && isAdmin) {
+      if (res.user && res.user.email && isAdminEmail(res.user.email)) {
         goto('/admin')
       } else {
         goto('/')
@@ -93,7 +99,7 @@ export default function AdminLogin({ onNavigate }: AdminLoginProps) {
       }
       const goto = onNavigate ?? navigate
       const emailAddr = res.user?.email
-      if (emailAddr && isAdmin) {
+      if (emailAddr && isAdminEmail(emailAddr)) {
         goto('/admin')
       } else {
         goto('/')

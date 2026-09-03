@@ -1,7 +1,11 @@
 import { useParams } from 'react-router-dom'
-import { getArticlesByCategory, categories } from '../data/articles'
+import { categories } from '../data/articles'
+import { getArticlesByCategory } from '../firebase/articles'
 import ArticleCard from '../components/article/ArticleCard'
 import CategoryIndex from '../components/article/CategoryIndex'
+import { SkeletonCard, SkeletonLine } from '../components/common/SkeletonLoader'
+import { useState, useEffect } from 'react'
+import type { Article } from '../data/articles'
 
 interface CategoryPageProps {
   onNavigate: (path: string) => void
@@ -12,7 +16,24 @@ export default function CategoryPage({ onNavigate, slug: propSlug }: CategoryPag
   const { slug: routeSlug } = useParams<{ slug: string }>()
   const slug = (propSlug ?? routeSlug ?? '').toLowerCase()
   const category = categories.find((c) => c.slug === slug)
-  const articlesList = getArticlesByCategory(slug)
+  const [articlesList, setArticlesList] = useState<Article[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    void (async () => {
+      const label = category?.label ?? slug
+      const data = await getArticlesByCategory(label)
+      if (!cancelled) {
+        setArticlesList(data)
+        setLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [slug, category])
 
   return (
     <main className="category-page">
@@ -21,11 +42,21 @@ export default function CategoryPage({ onNavigate, slug: propSlug }: CategoryPag
       <div className="section">
         <div className="section-header">
           <h1>{category?.label || 'Category'}</h1>
-          <p className="section-count">{articlesList.length} articles</p>
+          {!loading && <p className="section-count">{articlesList.length} articles</p>}
         </div>
         <div className="section-rule" />
 
-        {articlesList.length > 0 ? (
+        {loading ? (
+          <div className="article-grid">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} style={{ paddingBottom: '0.5rem' }}>
+                <SkeletonLine width="30%" height="12px" />
+                <div style={{ height: '0.4rem' }} />
+                <SkeletonCard />
+              </div>
+            ))}
+          </div>
+        ) : articlesList.length > 0 ? (
           <div className="article-grid">
             {articlesList.map((article) => (
               <ArticleCard key={article.id} article={article} onNavigate={onNavigate} />

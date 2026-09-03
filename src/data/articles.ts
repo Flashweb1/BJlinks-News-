@@ -386,7 +386,11 @@ export function getFeaturedArticle(): Article | undefined {
 }
 
 export function getLatestArticles(limit?: number): Article[] {
-  const sorted = [...articles]
+  const sorted = [...articles].sort((a, b) => {
+    const ad = new Date(a.publishedAt).getTime()
+    const bd = new Date(b.publishedAt).getTime()
+    return bd - ad
+  })
   if (limit) return sorted.slice(0, limit)
   return sorted
 }

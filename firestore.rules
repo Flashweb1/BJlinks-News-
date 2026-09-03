@@ -32,17 +32,6 @@ service cloud.firestore {
         && s.matches('^[a-z0-9]+(?:-[a-z0-9]+)*$');
     }
 
-    function isValidTags(tags) {
-      return tags is list
-        && tags.size() <= 10
-        && tags.hasOnly([
-          'Nigeria', 'Politics', 'Business', 'Tech', 'Health',
-          'Sports', 'Religion', 'Education', 'Stories', 'World', 'News',
-          'Delta State', 'Governance', 'Infrastructure', 'Finance',
-          'Markets', 'AI', 'Innovation', 'Education', 'Warri'
-        ]);
-    }
-
     // ============================================================
     // Articles
     // ============================================================

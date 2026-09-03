@@ -11,6 +11,7 @@ import {
   doc,
   getDoc,
   Timestamp,
+  limit,
 } from 'firebase/firestore'
 import { db } from './init'
 import { Article, sampleArticles } from '../data/articles'
@@ -144,7 +145,8 @@ export const searchArticles = async (queryText: string): Promise<Article[]> => {
     const q = query(
       collection(db, ARTICLES_COLLECTION),
       where('status', '==', 'published'),
-      orderBy('publishedAt', 'desc')
+      orderBy('publishedAt', 'desc'),
+      limit(100)
     )
     const snapshot = await getDocs(q)
     const articles = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Article)
@@ -199,6 +201,44 @@ export const getAllArticlesAdmin = async (): Promise<Article[]> => {
   }
 }
 
+export const doesSlugExist = async (slug: string, excludeId?: string): Promise<boolean> => {
+  try {
+    const q = query(
+      collection(db, ARTICLES_COLLECTION),
+      where('slug', '==', slug),
+      limit(1)
+    )
+    const snapshot = await getDocs(q)
+    if (snapshot.empty) return false
+    if (excludeId) {
+      const first = snapshot.docs[0]
+      if (!first) return false
+      return first.id !== excludeId
+    }
+    return true
+  } catch {
+    return false
+  }
+}
+
+export const generateUniqueSlug = async (
+  baseSlug: string,
+  excludeId?: string
+): Promise<string> => {
+  if (!baseSlug) return `article-${Date.now()}`
+  let candidate = baseSlug
+  let suffix = 2
+  while (await doesSlugExist(candidate, excludeId)) {
+    candidate = `${baseSlug}-${suffix}`
+    suffix++
+    if (suffix > 100) {
+      candidate = `${baseSlug}-${Date.now()}`
+      break
+    }
+  }
+  return candidate
+}
+
 export const getArticlesByStatus = async (status: string): Promise<Article[]> => {
   try {
     const q = query(
@@ -208,6 +248,17 @@ export const getArticlesByStatus = async (status: string): Promise<Article[]> =>
     )
     const snapshot = await getDocs(q)
     return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Article)
+  } catch {
+    return []
+  }
+}
+
+export const getArticlesByIds = async (ids: string[]): Promise<Article[]> => {
+  if (ids.length === 0) return []
+  try {
+    const all = await getArticles()
+    const idSet = new Set(ids)
+    return all.filter((a) => idSet.has(a.id))
   } catch {
     return []
   }
