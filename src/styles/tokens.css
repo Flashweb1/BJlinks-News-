@@ -102,8 +102,9 @@
 :root {
   /* ── FONT FAMILIES ── */
   --font-display: 'Playfair Display', 'Newsreader', Georgia, serif;
+  --font-heading: var(--font-display);
   --font-body: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --font-mono: 'DM Mono', 'Courier New', monospace;
 
   /* ── FONT SIZES - MODULAR SCALE (1.125 multiplier) ── */
   --text-xs: 0.75rem;      /* 12px - labels, captions */

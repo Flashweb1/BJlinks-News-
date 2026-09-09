@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react'
-import { Chrome, Lock } from 'lucide-react'
+import { Chrome, Lock, Mail, User, ArrowRight } from 'lucide-react'
 import { signInWithGoogle, signInWithEmail, createAccountWithEmail } from '../../firebase/auth'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
@@ -112,108 +112,181 @@ export default function AdminLogin({ onNavigate }: AdminLoginProps) {
   }
 
   return (
-    <main className="admin-login" style={{ minHeight: '100vh' }}>
-      <div className="login-card">
-        <div className="login-logo">
-          <Lock size={28} />
-          <h1>{mode === 'signin' ? 'Editor Sign In' : 'Create Editor Account'}</h1>
-          <p className="login-subtitle">
-            {mode === 'signin'
-              ? 'Sign in to access the Bjlinks editorial dashboard.'
-              : 'Create a new Bjlinks editor account.'}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          disabled={loading}
-          className="google-login-btn"
-        >
-          <Chrome size={18} />
-          Continue with Google
-        </button>
-
-        <div className="divider">
-          <span>or continue with email</span>
-        </div>
-
-        <form onSubmit={handleSubmit} className="login-form" noValidate>
-          {mode === 'signup' && (
-            <div className="form-group">
-              <label htmlFor="name">Full name</label>
-              <input
-                id="name"
-                type="text"
-                autoComplete="name"
-                placeholder="Adaeze Okafor"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+    <main className="admin-login-page">
+      <div className="login-container">
+        {/* Left side: Welcome message */}
+        <div className="login-welcome">
+          <div className="welcome-content">
+            <div className="welcome-badge">Editorial Dashboard</div>
+            <h1 className="welcome-title">
+              {mode === 'signin' ? 'Welcome back' : 'Join the newsroom'}
+            </h1>
+            <p className="welcome-subtitle">
+              {mode === 'signin'
+                ? 'Access the Bjlinks editorial hub and manage your stories.'
+                : 'Create your editor account and start publishing.'}
+            </p>
+            <div className="welcome-features">
+              <div className="feature-item">
+                <div className="feature-icon">✨</div>
+                <span>Publish instantly</span>
+              </div>
+              <div className="feature-item">
+                <div className="feature-icon">📊</div>
+                <span>Real-time analytics</span>
+              </div>
+              <div className="feature-item">
+                <div className="feature-icon">🔒</div>
+                <span>Secure & private</span>
+              </div>
             </div>
-          )}
-
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              placeholder="editor@bjlinksnews.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
           </div>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              minLength={6}
-              required
-            />
-          </div>
+        {/* Right side: Auth form */}
+        <div className="login-form-section">
+          <div className="login-card">
+            <div className="login-header">
+              <div className="logo-icon">
+                <Lock size={24} />
+              </div>
+              <h2>{mode === 'signin' ? 'Sign in' : 'Create account'}</h2>
+              <p>
+                {mode === 'signin'
+                  ? 'Enter your credentials below'
+                  : 'Set up your editor profile'}
+              </p>
+            </div>
 
-          {error && <div className="error-banner" role="alert">{error}</div>}
-
-          <button type="submit" className="btn-primary login-submit" disabled={loading}>
-            {loading ? 'Please wait…' : mode === 'signin' ? 'Sign In' : 'Create Account'}
-          </button>
-
-          <div className="login-switch">
-            {mode === 'signin' ? (
-              <>
-                Don&apos;t have an editor account?{' '}
-                <button type="button" onClick={() => { setMode('signup'); setError(null) }}>
-                  Create one
-                </button>
-              </>
-            ) : (
-              <>
-                Already have an account?{' '}
-                <button type="button" onClick={() => { setMode('signin'); setError(null) }}>
-                  Sign in
-                </button>
-              </>
-            )}
-          </div>
-
-          <div className="login-footer">
+            {/* Google Sign In */}
             <button
               type="button"
-              className="btn-ghost"
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+              className="btn-google"
+            >
+              <Chrome size={20} />
+              <span>Continue with Google</span>
+            </button>
+
+            {/* Divider */}
+            <div className="login-divider">
+              <div className="divider-line"></div>
+              <span>or with email</span>
+              <div className="divider-line"></div>
+            </div>
+
+            {/* Email/Password Form */}
+            <form onSubmit={handleSubmit} className="form" noValidate>
+              {mode === 'signup' && (
+                <div className="form-group">
+                  <label htmlFor="name">Full name</label>
+                  <div className="input-wrapper">
+                    <User size={18} />
+                    <input
+                      id="name"
+                      type="text"
+                      autoComplete="name"
+                      placeholder="Adaeze Okafor"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="form-group">
+                <label htmlFor="email">Email address</label>
+                <div className="input-wrapper">
+                  <Mail size={18} />
+                  <input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="editor@bjlinksnews.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <div className="input-wrapper">
+                  <Lock size={18} />
+                  <input
+                    id="password"
+                    type="password"
+                    autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    minLength={6}
+                    required
+                  />
+                </div>
+              </div>
+
+              {error && (
+                <div className="error-alert" role="alert">
+                  <span>⚠️</span>
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <button type="submit" className="btn-submit" disabled={loading}>
+                {loading ? (
+                  <>
+                    <span className="spinner"></span>
+                    Authenticating...
+                  </>
+                ) : (
+                  <>
+                    {mode === 'signin' ? 'Sign in' : 'Create account'}
+                    <ArrowRight size={18} />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Mode Toggle */}
+            <div className="form-toggle">
+              {mode === 'signin' ? (
+                <>
+                  <span>New here?</span>
+                  <button
+                    type="button"
+                    onClick={() => { setMode('signup'); setError(null) }}
+                    className="toggle-btn"
+                  >
+                    Create an account
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span>Already an editor?</span>
+                  <button
+                    type="button"
+                    onClick={() => { setMode('signin'); setError(null) }}
+                    className="toggle-btn"
+                  >
+                    Sign in instead
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Back to site */}
+            <button
+              type="button"
+              className="btn-back"
               onClick={() => (onNavigate ?? navigate)('/')}
             >
-              ← Back to site
+              ← Back to Bjlinks
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </main>
   )

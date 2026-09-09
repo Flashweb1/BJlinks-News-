@@ -5,13 +5,15 @@ import { useBookmarks } from '../../contexts/BookmarkContext'
 interface FeatureHeroProps {
   article: Article
   onNavigate: (path: string) => void
+  active?: boolean
 }
 
-export default function FeatureHero({ article, onNavigate }: FeatureHeroProps) {
+export default function FeatureHero({ article, onNavigate, active = true }: FeatureHeroProps) {
   const { toggleBookmark, isBookmarked } = useBookmarks()
 
   return (
-    <section className="feature-hero" onClick={() => onNavigate(`/article/${article.slug}`)}>
+    <div className={`hero-slide ${active ? 'active' : ''}`} aria-hidden={!active}>
+      <section className="feature-hero" onClick={() => onNavigate(`/article/${article.slug}`)}>
       <img src={article.image} alt={article.title} loading="eager" />
       <div className="feature-hero-overlay">
         <span className="kicker">{article.category}</span>
@@ -38,5 +40,6 @@ export default function FeatureHero({ article, onNavigate }: FeatureHeroProps) {
         </div>
       </div>
     </section>
+    </div>
   )
 }

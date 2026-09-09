@@ -17,6 +17,7 @@ import { initReactSentry } from './utils/sentry'
 import { analytics } from './analytics'
 import NotFoundPage from './pages/NotFoundPage'
 import './App.css'
+import './styles/admin-premium.css'
 
 const ArticlePage = lazy(() => import('./pages/ArticlePage'))
 const CategoryPage = lazy(() => import('./pages/CategoryPage'))
@@ -77,7 +78,17 @@ function isArticleReading(kind: PageKind): boolean {
 }
 
 function isAdminPage(kind: PageKind): boolean {
-  return kind === 'admin-login' || kind === 'admin-dashboard' || kind === 'admin-editor'
+  return (
+    kind === 'admin-login' ||
+    kind === 'admin-dashboard' ||
+    kind === 'admin-articles' ||
+    kind === 'admin-media' ||
+    kind === 'admin-comments' ||
+    kind === 'admin-analytics' ||
+    kind === 'admin-users' ||
+    kind === 'admin-settings' ||
+    kind === 'admin-editor'
+  )
 }
 
 function isPolicyPage(kind: PageKind): boolean {

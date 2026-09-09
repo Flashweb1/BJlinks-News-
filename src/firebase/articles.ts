@@ -88,19 +88,28 @@ export const getArticleBySlug = async (slug: string): Promise<Article | undefine
 }
 
 export const getFeaturedArticle = async (): Promise<Article | undefined> => {
+  const featured = await getFeaturedArticles()
+  return featured[0]
+}
+
+export const getFeaturedArticles = async (count: number = 4): Promise<Article[]> => {
   try {
     const q = query(
       collection(db, ARTICLES_COLLECTION),
       where('featured', '==', true),
       where('status', '==', 'published'),
-      orderBy('publishedAt', 'desc')
+      orderBy('publishedAt', 'desc'),
+      limit(count)
     )
     const snapshot = await getDocs(q)
-    const first = snapshot.docs[0]
-    if (first) return { id: first.id, ...first.data() } as Article
+    const docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Article)
+    if (docs.length > 0) return docs.slice(0, count)
   } catch {
   }
-  return sampleArticles.find((a) => a.featured) ?? sampleArticles[0]
+  const featured = sampleArticles.filter((a) => a.featured)
+  if (featured.length >= count) return featured.slice(0, count)
+  const idSet = new Set(featured.map((a) => a.id))
+  return featured.concat(sampleArticles.filter((a) => !idSet.has(a.id))).slice(0, count)
 }
 
 export const getLatestArticles = async (count: number = 6): Promise<Article[]> => {

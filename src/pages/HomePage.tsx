@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import type { Article } from '../data/articles'
-import { getFeaturedArticle, getLatestArticles, getArticlesByCategory } from '../firebase/articles'
-import FeatureHero from '../components/article/FeatureHero'
+import { getFeaturedArticles, getLatestArticles, getArticlesByCategory } from '../firebase/articles'
+import HeroSlider from '../components/article/HeroSlider'
 import ArticleCard from '../components/article/ArticleCard'
 import CategoryIndex from '../components/article/CategoryIndex'
+import SectionHeader from '../components/ui/SectionHeader'
+import Reveal from '../components/ui/Reveal'
+import HomeSidebar from '../components/home/HomeSidebar'
 import { SkeletonHero, SkeletonCard, SkeletonLine } from '../components/common/SkeletonLoader'
 import { buildCanonicalUrl, getSiteConfig } from '../utils/security'
 
@@ -14,7 +17,7 @@ interface HomePageProps {
 
 export default function HomePage({ onNavigate }: HomePageProps) {
   const cfg = getSiteConfig()
-  const [featured, setFeatured] = useState<Article | undefined>(undefined)
+  const [featured, setFeatured] = useState<Article[]>([])
   const [latest, setLatest] = useState<Article[]>([])
   const [politics, setPolitics] = useState<Article[]>([])
   const [business, setBusiness] = useState<Article[]>([])
@@ -25,7 +28,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
     let cancelled = false
 
     void Promise.all([
-      getFeaturedArticle(),
+      getFeaturedArticles(4),
       getLatestArticles(8),
       getArticlesByCategory('Politics'),
       getArticlesByCategory('Business'),
@@ -69,34 +72,52 @@ export default function HomePage({ onNavigate }: HomePageProps) {
         </div>
       ) : (
           <>
-            {featured && <FeatureHero article={featured} onNavigate={onNavigate} />}
+            {featured.length > 0 && <HeroSlider articles={featured} onNavigate={onNavigate} />}
 
             <CategoryIndex onNavigate={onNavigate} />
 
             <section className="section">
-              <div className="section-header">
-                <h2>Latest News</h2>
-                <div className="section-rule" />
-              </div>
-              <div className="article-grid">
-                {latest.map((article) => (
-                  <ArticleCard key={article.id} article={article} onNavigate={onNavigate} />
-                ))}
+              <Reveal>
+                <SectionHeader title="Latest News" accent="Live" count={latest.length} />
+              </Reveal>
+              <div className="home-main-grid">
+                <div className="article-grid">
+                  {latest.map((article, i) => (
+                    <ArticleCard
+                      key={article.id}
+                      article={article}
+                      onNavigate={onNavigate}
+                      variant="grid"
+                      reveal
+                      revealDelay={(i % 3) * 90}
+                    />
+                  ))}
+                </div>
+                <Reveal variant="fade" delay={150} className="home-sidebar-sticky">
+                  <HomeSidebar articles={latest} onNavigate={onNavigate} />
+                </Reveal>
               </div>
             </section>
 
             {politics.length > 0 && (
               <section className="section">
-                <div className="section-header">
-                  <h2>Politics</h2>
-                  <button className="see-all" onClick={() => onNavigate('/category/politics')}>
-                    See all →
-                  </button>
-                </div>
-                <div className="section-rule" />
+                <Reveal>
+                  <SectionHeader
+                    title="Politics"
+                    accent="D.C. & Abuja Desk"
+                    onSeeAll={() => onNavigate('/category/politics')}
+                  />
+                </Reveal>
                 <div className="article-row">
-                  {politics.map((article) => (
-                    <ArticleCard key={article.id} article={article} onNavigate={onNavigate} variant="compact" />
+                  {politics.map((article, i) => (
+                    <ArticleCard
+                      key={article.id}
+                      article={article}
+                      onNavigate={onNavigate}
+                      variant="compact"
+                      reveal
+                      revealDelay={i * 90}
+                    />
                   ))}
                 </div>
               </section>
@@ -104,16 +125,23 @@ export default function HomePage({ onNavigate }: HomePageProps) {
 
             {business.length > 0 && (
               <section className="section">
-                <div className="section-header">
-                  <h2>Business</h2>
-                  <button className="see-all" onClick={() => onNavigate('/category/business')}>
-                    See all →
-                  </button>
-                </div>
-                <div className="section-rule" />
+                <Reveal>
+                  <SectionHeader
+                    title="Business"
+                    accent="Markets & Money"
+                    onSeeAll={() => onNavigate('/category/business')}
+                  />
+                </Reveal>
                 <div className="article-row">
-                  {business.map((article) => (
-                    <ArticleCard key={article.id} article={article} onNavigate={onNavigate} variant="compact" />
+                  {business.map((article, i) => (
+                    <ArticleCard
+                      key={article.id}
+                      article={article}
+                      onNavigate={onNavigate}
+                      variant="compact"
+                      reveal
+                      revealDelay={i * 90}
+                    />
                   ))}
                 </div>
               </section>

@@ -308,15 +308,13 @@ export default function ArticlesPage({ onNavigate }: ArticlesPageProps) {
                     </td>
                     <td>
                       <div className="admin-table-title">
-                        <a
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            onNavigate(`/admin/editor/${article.id}`)
-                          }}
+                        <button
+                          type="button"
+                          className="admin-table-title-link"
+                          onClick={() => onNavigate(`/admin/editor/${article.id}`)}
                         >
                           {article.title}
-                        </a>
+                        </button>
                         {article.featured && (
                           <span className="admin-badge" style={{ marginLeft: '0.5rem', background: 'var(--admin-gold-soft)', color: 'var(--admin-gold)' }}>
                             Featured

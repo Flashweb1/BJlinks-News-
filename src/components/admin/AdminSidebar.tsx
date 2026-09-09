@@ -1,168 +1,155 @@
-import {
-  LayoutDashboard,
-  FileText,
-  Image,
-  MessageSquare,
-  BarChart3,
-  Users,
-  Settings,
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
-  PenLine,
-  Eye,
-} from 'lucide-react'
+import { LayoutDashboard, FileText, Image, MessageSquare, BarChart3, Users, Settings, PlusCircle, Eye, LogOut, ChevronDown } from 'lucide-react'
+import { signOut } from 'firebase/auth'
 import { auth } from '../../firebase/init'
 
 interface AdminSidebarProps {
-  collapsed: boolean
   currentPage: string
   onNavigate: (path: string) => void
-  onToggle: () => void
-  onLogout: () => void
+  notificationBadge?: number
+  onLogout?: () => void
 }
 
 const navItems = [
-  {
-    section: 'Main',
-    items: [
-      { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
-      { id: 'articles', label: 'Articles', icon: FileText, path: '/admin/articles', badge: null },
-      { id: 'media', label: 'Media', icon: Image, path: '/admin/media' },
-      { id: 'comments', label: 'Comments', icon: MessageSquare, path: '/admin/comments', badge: 3 },
-    ],
-  },
-  {
-    section: 'Analytics',
-    items: [
-      { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/admin/analytics' },
-    ],
-  },
-  {
-    section: 'Management',
-    items: [
-      { id: 'users', label: 'Users', icon: Users, path: '/admin/users' },
-      { id: 'settings', label: 'Settings', icon: Settings, path: '/admin/settings' },
-    ],
-  },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
+  { id: 'articles', label: 'Articles', icon: FileText, path: '/admin/articles' },
+  { id: 'media', label: 'Media', icon: Image, path: '/admin/media' },
+  { id: 'comments', label: 'Comments', icon: MessageSquare, path: '/admin/comments', badge: 3 },
+  { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/admin/analytics' },
+  { id: 'users', label: 'Users', icon: Users, path: '/admin/users' },
+  { id: 'settings', label: 'Settings', icon: Settings, path: '/admin/settings' },
 ]
 
-const quickActions = [
-  { label: 'New Article', icon: PenLine, path: '/admin/editor' },
-  { label: 'View Site', icon: Eye, path: '/' },
-]
-
-export default function AdminSidebar({
-  collapsed,
-  currentPage,
-  onNavigate,
-  onToggle,
-  onLogout,
-}: AdminSidebarProps) {
+export default function AdminSidebar({ currentPage, onNavigate, notificationBadge, onLogout }: AdminSidebarProps) {
   const user = auth.currentUser
   const userInitial = user?.displayName?.charAt(0) || user?.email?.charAt(0) || 'A'
-  const userName = user?.displayName || user?.email?.split('@')[0] || 'Admin'
-  const userRole = 'Editor'
+  const userName = user?.displayName || user?.email?.split('@')[0] || 'Editor'
+  const userRole = 'Administrator'
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth)
+      onLogout?.()
+      onNavigate('/admin/login')
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
+  }
 
   return (
-    <aside className={`admin-sidebar ${collapsed ? 'collapsed' : ''}`}>
-      <div className="admin-sidebar-header">
-        <a href="/admin" className="admin-logo" onClick={(e) => { e.preventDefault(); onNavigate('/admin') }}>
-          <div className="admin-logo-icon">B</div>
-          <span className="admin-logo-text">Bjlinks</span>
-        </a>
+    <div className="sidebar">
+      {/* Branding */}
+      <div className="sidebar-branding">
+        <img
+          src="/Logo Icon.png"
+          alt="Bjlinks"
+          className="sidebar-logo-icon"
+          style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '6px',
+            objectFit: 'contain',
+          }}
+        />
+        <div className="sidebar-logo-text">
+          <div className="sidebar-logo-text-main">Bjlinks</div>
+          <div className="sidebar-logo-text-sub">Admin</div>
+        </div>
       </div>
 
-      <nav className="admin-nav" aria-label="Admin navigation">
-        {navItems.map((section) => (
-          <div key={section.section} className="admin-nav-section">
-            <div className="admin-nav-label">{section.section}</div>
-            {section.items.map((item) => {
-              const Icon = item.icon
-              const isActive = currentPage === item.id
-              return (
-                <a
-                  key={item.id}
-                  href={item.path}
-                  className={`admin-nav-item ${isActive ? 'active' : ''}`}
-                  onClick={(e) => { e.preventDefault(); onNavigate(item.path) }}
-                  title={collapsed ? item.label : undefined}
-                >
-                  <Icon size={20} />
-                  <span>{item.label}</span>
-                  {item.badge && <span className="admin-nav-badge">{item.badge}</span>}
-                </a>
-              )
-            })}
-          </div>
-        ))}
+      {/* Navigation */}
+      <nav className="sidebar-nav">
+        <div className="sidebar-nav-section">
+          <div className="sidebar-nav-label">Main</div>
 
-        <div className="admin-nav-section">
-          <div className="admin-nav-label">Quick Actions</div>
-          {quickActions.map((action) => {
-            const Icon = action.icon
+          {navItems.slice(0, 4).map((item) => {
+            const Icon = item.icon
+            const isActive = currentPage === item.id
             return (
-              <a
-                key={action.label}
-                href={action.path}
-                className="admin-nav-item"
-                onClick={(e) => {
-                  e.preventDefault()
-                  onNavigate(action.path)
-                }}
-                title={collapsed ? action.label : undefined}
+              <button
+                key={item.id}
+                onClick={() => onNavigate(item.path)}
+                className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
               >
-                <Icon size={20} />
-                <span>{action.label}</span>
-              </a>
+                <Icon size={18} />
+                <span>{item.label}</span>
+                {item.badge && item.badge > 0 && (
+                  <span className="sidebar-nav-item-badge">{item.badge}</span>
+                )}
+              </button>
             )
           })}
         </div>
+
+        <div className="sidebar-nav-section">
+          <div className="sidebar-nav-label">Analytics</div>
+
+          {navItems.slice(4, 5).map((item) => {
+            const Icon = item.icon
+            const isActive = currentPage === item.id
+            return (
+              <button
+                key={item.id}
+                onClick={() => onNavigate(item.path)}
+                className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
+              >
+                <Icon size={18} />
+                <span>{item.label}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="sidebar-nav-section">
+          <div className="sidebar-nav-label">Management</div>
+
+          {navItems.slice(5).map((item) => {
+            const Icon = item.icon
+            const isActive = currentPage === item.id
+            return (
+              <button
+                key={item.id}
+                onClick={() => onNavigate(item.path)}
+                className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
+              >
+                <Icon size={18} />
+                <span>{item.label}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="sidebar-nav-section">
+          <div className="sidebar-nav-label">Quick Actions</div>
+
+          <button
+            onClick={() => onNavigate('/admin/editor')}
+            className="sidebar-nav-item"
+          >
+            <PlusCircle size={18} />
+            <span>New Article</span>
+          </button>
+
+          <button
+            onClick={() => onNavigate('/')}
+            className="sidebar-nav-item"
+          >
+            <Eye size={18} />
+            <span>View Site</span>
+          </button>
+        </div>
       </nav>
 
-      <div className="admin-sidebar-footer">
-        <div className="admin-user">
-          <div className="admin-user-avatar">
-            {user?.photoURL ? (
-              <img src={user.photoURL} alt={userName} />
-            ) : (
-              userInitial
-            )}
+      {/* User Profile */}
+      <div className="sidebar-user">
+        <button className="sidebar-user-item" onClick={handleLogout} title="Sign out">
+          <div className="sidebar-user-avatar">{userInitial}</div>
+          <div className="sidebar-user-info">
+            <div className="sidebar-user-name">{userName}</div>
+            <div className="sidebar-user-role">{userRole}</div>
           </div>
-          <div className="admin-user-info">
-            <div className="admin-user-name">{userName}</div>
-            <div className="admin-user-role">{userRole}</div>
-          </div>
-        </div>
-        <button
-          className="admin-nav-item"
-          onClick={onLogout}
-          style={{ width: '100%', marginTop: '0.5rem' }}
-          title={collapsed ? 'Sign Out' : undefined}
-        >
-          <LogOut size={20} />
-          <span>Sign Out</span>
+          <LogOut size={14} className="sidebar-user-logout" />
         </button>
       </div>
-
-      <button
-        onClick={onToggle}
-        className="admin-nav-item"
-        style={{
-          position: 'absolute',
-          bottom: '1rem',
-          right: collapsed ? '50%' : '0.75rem',
-          transform: collapsed ? 'translateX(50%)' : 'none',
-          justifyContent: 'center',
-          padding: '0.5rem',
-          margin: '0 0.75rem',
-          width: collapsed ? '36px' : 'calc(100% - 1.5rem)',
-        }}
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-      >
-        {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-        {!collapsed && <span>Collapse</span>}
-      </button>
-    </aside>
+    </div>
   )
 }

@@ -1,18 +1,33 @@
 import { Article } from '../../data/articles'
 import { Bookmark, BookmarkCheck } from 'lucide-react'
 import { useBookmarks } from '../../contexts/BookmarkContext'
+import { useReveal } from '../../hooks/useReveal'
 
 interface ArticleCardProps {
   article: Article
   onNavigate: (path: string) => void
-  variant?: 'default' | 'compact' | 'sidebar'
+  variant?: 'default' | 'compact' | 'sidebar' | 'grid'
+  reveal?: boolean
+  revealDelay?: number
 }
 
-export default function ArticleCard({ article, onNavigate, variant = 'default' }: ArticleCardProps) {
+export default function ArticleCard({
+  article,
+  onNavigate,
+  variant = 'default',
+  reveal = false,
+  revealDelay = 0,
+}: ArticleCardProps) {
   const { toggleBookmark, isBookmarked } = useBookmarks()
+  const { ref, visible } = useReveal<HTMLElement>({ threshold: 0.05 })
 
   return (
-    <article className={`article-card ${variant}`} onClick={() => onNavigate(`/article/${article.slug}`)}>
+    <article
+      ref={reveal ? ref : undefined}
+      className={`article-card ${variant} ${reveal ? `reveal reveal-fade-up ${visible ? 'is-visible' : ''}` : ''}`}
+      style={reveal && revealDelay ? { transitionDelay: `${revealDelay}ms` } : undefined}
+      onClick={() => onNavigate(`/article/${article.slug}`)}
+    >
       <div className="article-card-image">
         <img src={article.image} alt={article.title} loading="lazy" />
         <span className="kicker">{article.category}</span>

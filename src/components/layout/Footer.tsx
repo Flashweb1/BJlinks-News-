@@ -1,6 +1,5 @@
-import { useState } from 'react'
 import { categories } from '../../data/articles'
-import { Mail, Check } from 'lucide-react'
+import NewsletterForm from '../newsletter/NewsletterForm'
 
 interface FooterProps {
   onNavigate: (path: string) => void
@@ -8,46 +7,10 @@ interface FooterProps {
 
 export default function Footer({ onNavigate }: FooterProps) {
   const year = new Date().getFullYear()
-  const [email, setEmail] = useState('')
-  const [subscribed, setSubscribed] = useState(false)
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (email) {
-      setSubscribed(true)
-      setEmail('')
-      setTimeout(() => setSubscribed(false), 4000)
-    }
-  }
 
   return (
     <footer className="site-footer">
-      <div className="newsletter-card">
-        <div className="newsletter-content">
-          <div className="newsletter-badge">EDITORIAL BRIEFING</div>
-          <h3>The Morning Digest</h3>
-          <p>Get curated investigative reporting and breaking intelligence sent directly to your inbox every weekday morning.</p>
-        </div>
-        {subscribed ? (
-          <div className="newsletter-success">
-            <Check size={20} /> Thank you for subscribing to Bjlinks Daily Digest.
-          </div>
-        ) : (
-          <form className="newsletter-form" onSubmit={handleSubscribe}>
-            <div className="input-wrapper">
-              <Mail size={16} />
-              <input
-                type="email"
-                placeholder="Enter your email address..."
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit">Subscribe</button>
-          </form>
-        )}
-      </div>
+      <NewsletterForm variant="banner" />
 
       <div className="footer-inner">
         <div className="footer-brand">

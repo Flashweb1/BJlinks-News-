@@ -21,7 +21,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
 
+  // TEMPORARY: Bypass auth for testing - remove before production
+  const DEV_BYPASS_AUTH = true
+
   useEffect(() => {
+    if (DEV_BYPASS_AUTH) {
+      // Mock user for development
+      setUser({ email: 'dev@bjlinks.test', uid: 'dev-user-123' } as User)
+      setIsAdmin(true)
+      setLoading(false)
+      return
+    }
+
     const unsubscribe = onAuthStateChange((currentUser) => {
       setUser(currentUser as User | null)
       setIsAdmin(isAdminUser(currentUser))

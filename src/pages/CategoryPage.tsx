@@ -3,6 +3,8 @@ import { categories } from '../data/articles'
 import { getArticlesByCategory } from '../firebase/articles'
 import ArticleCard from '../components/article/ArticleCard'
 import CategoryIndex from '../components/article/CategoryIndex'
+import SectionHeader from '../components/ui/SectionHeader'
+import Reveal from '../components/ui/Reveal'
 import { SkeletonCard, SkeletonLine } from '../components/common/SkeletonLoader'
 import { useState, useEffect } from 'react'
 import type { Article } from '../data/articles'
@@ -40,10 +42,14 @@ export default function CategoryPage({ onNavigate, slug: propSlug }: CategoryPag
       <CategoryIndex onNavigate={onNavigate} activeCategory={slug} />
 
       <div className="section">
-        <div className="section-header">
-          <h1>{category?.label || 'Category'}</h1>
-          {!loading && <p className="section-count">{articlesList.length} articles</p>}
-        </div>
+        <Reveal>
+          <SectionHeader
+            title={category?.label || slug.charAt(0).toUpperCase() + slug.slice(1) || 'Category'}
+            accent="Section"
+            count={!loading ? articlesList.length : undefined}
+            as="h1"
+          />
+        </Reveal>
         <div className="section-rule" />
 
         {loading ? (
@@ -58,8 +64,15 @@ export default function CategoryPage({ onNavigate, slug: propSlug }: CategoryPag
           </div>
         ) : articlesList.length > 0 ? (
           <div className="article-grid">
-            {articlesList.map((article) => (
-              <ArticleCard key={article.id} article={article} onNavigate={onNavigate} />
+            {articlesList.map((article, i) => (
+              <ArticleCard
+                key={article.id}
+                article={article}
+                onNavigate={onNavigate}
+                variant="grid"
+                reveal
+                revealDelay={(i % 3) * 90}
+              />
             ))}
           </div>
         ) : (

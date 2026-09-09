@@ -11,8 +11,7 @@ export default function Ticker() {
       <div className="ticker-scroll">
         {items.map((item, i) => (
           <span key={i} className="ticker-item">
-            {item}
-            {i < items.length - 1 && <span className="ticker-sep">·</span>}
+            <span className="ticker-text">{item}</span>
           </span>
         ))}
       </div>
