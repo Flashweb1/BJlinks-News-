@@ -81,7 +81,7 @@ export const DEFAULT_CONFIG: SiteConfig = {
   metaDescription: 'Bjlinks News delivers premium journalism covering politics, business, technology, and more from Nigeria.',
   ogImageUrl: '',
   twitterCardType: 'summary_large_image',
-  canonicalDomain: 'https://bjlinksnews.com',
+  canonicalDomain: 'https://bjlinks-news.vercel.app',
   audioEnabled: true,
   dropCaps: true,
   defaultFontSize: 'md',

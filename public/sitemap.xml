@@ -2,85 +2,85 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
   <url>
-    <loc>https://bjlinksnews.com/</loc>
+    <loc>https://bjlinks-news.vercel.app/</loc>
     <lastmod>2026-08-25</lastmod>
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/search</loc>
+    <loc>https://bjlinks-news.vercel.app/search</loc>
     <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/bookmarks</loc>
+    <loc>https://bjlinks-news.vercel.app/bookmarks</loc>
     <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/category/politics</loc>
+    <loc>https://bjlinks-news.vercel.app/category/politics</loc>
     <lastmod>2026-08-25</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/category/news</loc>
+    <loc>https://bjlinks-news.vercel.app/category/news</loc>
     <lastmod>2026-08-25</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/category/business</loc>
+    <loc>https://bjlinks-news.vercel.app/category/business</loc>
     <lastmod>2026-08-25</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/category/world</loc>
+    <loc>https://bjlinks-news.vercel.app/category/world</loc>
     <lastmod>2026-08-25</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/category/tech</loc>
+    <loc>https://bjlinks-news.vercel.app/category/tech</loc>
     <lastmod>2026-08-25</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/category/health</loc>
+    <loc>https://bjlinks-news.vercel.app/category/health</loc>
     <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/category/sports</loc>
+    <loc>https://bjlinks-news.vercel.app/category/sports</loc>
     <lastmod>2026-08-25</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/category/religion</loc>
+    <loc>https://bjlinks-news.vercel.app/category/religion</loc>
     <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/category/education</loc>
+    <loc>https://bjlinks-news.vercel.app/category/education</loc>
     <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/category/stories</loc>
+    <loc>https://bjlinks-news.vercel.app/category/stories</loc>
     <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/governor-oborevwori-commissions-delta-state-secretariat</loc>
+    <loc>https://bjlinks-news.vercel.app/article/governor-oborevwori-commissions-delta-state-secretariat</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -94,7 +94,7 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/nigerian-economy-shows-resilient-growth</loc>
+    <loc>https://bjlinks-news.vercel.app/article/nigerian-economy-shows-resilient-growth</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -108,7 +108,7 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/warri-tech-hub-launches-pioneer-ai-center</loc>
+    <loc>https://bjlinks-news.vercel.app/article/warri-tech-hub-launches-pioneer-ai-center</loc>
     <lastmod>2026-08-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -122,7 +122,7 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/nigerian-universities-partner-with-international-tech-firms</loc>
+    <loc>https://bjlinks-news.vercel.app/article/nigerian-universities-partner-with-international-tech-firms</loc>
     <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -136,7 +136,7 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/super-eagles-qualify-for-2027-afcon</loc>
+    <loc>https://bjlinks-news.vercel.app/article/super-eagles-qualify-for-2027-afcon</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -150,7 +150,7 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/lagos-state-announces-500m-infrastructure-plan</loc>
+    <loc>https://bjlinks-news.vercel.app/article/lagos-state-announces-500m-infrastructure-plan</loc>
     <lastmod>2026-08-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -164,7 +164,7 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/central-bank-maintains-interest-rate-at-18</loc>
+    <loc>https://bjlinks-news.vercel.app/article/central-bank-maintains-interest-rate-at-18</loc>
     <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -178,7 +178,7 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/nigeria-joins-global-digital-health-initiative</loc>
+    <loc>https://bjlinks-news.vercel.app/article/nigeria-joins-global-digital-health-initiative</loc>
     <lastmod>2026-08-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -192,7 +192,7 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/enugu-governor-wins-impeachment-court-case</loc>
+    <loc>https://bjlinks-news.vercel.app/article/enugu-governor-wins-impeachment-court-case</loc>
     <lastmod>2026-08-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -206,7 +206,7 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/lagos-announces-new-light-rail-extension</loc>
+    <loc>https://bjlinks-news.vercel.app/article/lagos-announces-new-light-rail-extension</loc>
     <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -220,7 +220,7 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/nigeria-mobile-money-growth-40</loc>
+    <loc>https://bjlinks-news.vercel.app/article/nigeria-mobile-money-growth-40</loc>
     <lastmod>2026-08-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -234,7 +234,7 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/unicef-oyo-state-child-nutrition-program</loc>
+    <loc>https://bjlinks-news.vercel.app/article/unicef-oyo-state-child-nutrition-program</loc>
     <lastmod>2026-08-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -248,7 +248,7 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/kano-solar-water-treatment-plant</loc>
+    <loc>https://bjlinks-news.vercel.app/article/kano-solar-water-treatment-plant</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -262,7 +262,7 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/nollywood-generates-1-2-trillion-revenue</loc>
+    <loc>https://bjlinks-news.vercel.app/article/nollywood-generates-1-2-trillion-revenue</loc>
     <lastmod>2026-08-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -276,7 +276,7 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/buhari-foundation-scholarship-program</loc>
+    <loc>https://bjlinks-news.vercel.app/article/buhari-foundation-scholarship-program</loc>
     <lastmod>2026-08-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -290,7 +290,7 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/article/nigeria-non-oil-exports-surge-25</loc>
+    <loc>https://bjlinks-news.vercel.app/article/nigeria-non-oil-exports-surge-25</loc>
     <lastmod>2026-08-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -304,13 +304,13 @@
     </news:news>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/privacy</loc>
+    <loc>https://bjlinks-news.vercel.app/privacy</loc>
     <lastmod>2026-01-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://bjlinksnews.com/terms</loc>
+    <loc>https://bjlinks-news.vercel.app/terms</loc>
     <lastmod>2026-01-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>

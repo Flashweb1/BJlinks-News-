@@ -149,13 +149,13 @@ describe('generateReadTime', () => {
 
 describe('buildCanonicalUrl', () => {
   it('joins site URL and path', () => {
-    expect(buildCanonicalUrl('/article/foo')).toBe('https://bjlinksnews.com/article/foo')
+    expect(buildCanonicalUrl('/article/foo')).toBe('https://bjlinks-news.vercel.app/article/foo')
   })
   it('adds leading slash if missing', () => {
-    expect(buildCanonicalUrl('foo/bar')).toBe('https://bjlinksnews.com/foo/bar')
+    expect(buildCanonicalUrl('foo/bar')).toBe('https://bjlinks-news.vercel.app/foo/bar')
   })
   it('defaults to root', () => {
-    expect(buildCanonicalUrl()).toBe('https://bjlinksnews.com/')
+    expect(buildCanonicalUrl()).toBe('https://bjlinks-news.vercel.app/')
   })
 })
 

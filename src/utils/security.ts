@@ -78,7 +78,7 @@ export function isAdminEmail(email: string | null | undefined): boolean {
 }
 
 export function buildCanonicalUrl(path: string = '/'): string {
-  const base = (import.meta.env.VITE_SITE_URL || 'https://bjlinksnews.com').replace(/\/$/, '')
+  const base = (import.meta.env.VITE_SITE_URL || 'https://bjlinks-news.vercel.app').replace(/\/$/, '')
   const p = path.startsWith('/') ? path : `/${path}`
   return `${base}${p}`
 }
@@ -90,7 +90,7 @@ export function getSiteConfig() {
       import.meta.env.VITE_SITE_DESCRIPTION ||
       'Bjlinks News delivers premium journalism covering politics, business, technology, and more from Nigeria and around the world.',
     locale: import.meta.env.VITE_SITE_LOCALE || 'en_NG',
-    url: import.meta.env.VITE_SITE_URL || 'https://bjlinksnews.com',
+    url: import.meta.env.VITE_SITE_URL || 'https://bjlinks-news.vercel.app',
     contactEmail: import.meta.env.VITE_CONTACT_EMAIL || 'hello@bjlinksnews.com',
     showCookieBanner: import.meta.env.VITE_SHOW_COOKIE_BANNER !== 'false',
   }
