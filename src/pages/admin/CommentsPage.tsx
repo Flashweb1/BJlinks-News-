@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Check, X, Trash2, Flag, MessageSquare, User, Clock } from 'lucide-react'
+import { Check, X, Trash2, Flag, MessageSquare, Sparkles, Loader2 } from 'lucide-react'
 import AdminLayout from '../../components/admin/AdminLayout'
+import { moderateComment, isAIEnabled, type ModerationResult } from '../../utils/ai'
 
 interface CommentsPageProps {
   onNavigate: (path: string) => void
@@ -15,6 +16,7 @@ interface Comment {
   body: string
   createdAt: string
   status: 'pending' | 'approved' | 'rejected'
+  aiVerdict?: ModerationResult
 }
 
 const sampleComments: Comment[] = [
@@ -86,6 +88,9 @@ export default function CommentsPage({ onNavigate }: CommentsPageProps) {
   const [comments, setComments] = useState<Comment[]>(sampleComments)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [aiLoadingIds, setAiLoadingIds] = useState<Set<string>>(new Set())
+  const [bulkAiLoading, setBulkAiLoading] = useState(false)
+  const aiEnabled = isAIEnabled()
 
   const filteredComments = statusFilter === 'all'
     ? comments
@@ -144,6 +149,49 @@ export default function CommentsPage({ onNavigate }: CommentsPageProps) {
     setSelectedIds(new Set())
   }
 
+  const runAIModerate = async (id: string) => {
+    const comment = comments.find(c => c.id === id)
+    if (!comment) return
+    setAiLoadingIds(prev => new Set(prev).add(id))
+    try {
+      const result = await moderateComment(comment.body, comment.articleTitle)
+      setComments(prev => prev.map(c => c.id === id ? { ...c, aiVerdict: result } : c))
+      // Auto-apply verdict
+      if (result.verdict === 'approve') approve(id)
+      else if (result.verdict === 'reject') reject(id)
+    } catch {
+      // silently fail — manual moderation still available
+    } finally {
+      setAiLoadingIds(prev => { const next = new Set(prev); next.delete(id); return next })
+    }
+  }
+
+  const runBulkAIModerate = async () => {
+    const pending = comments.filter(c => c.status === 'pending')
+    if (!pending.length) return
+    setBulkAiLoading(true)
+    for (const comment of pending) {
+      try {
+        const result = await moderateComment(comment.body, comment.articleTitle)
+        setComments(prev => prev.map(c => {
+          if (c.id !== comment.id) return c
+          const updated = { ...c, aiVerdict: result }
+          if (result.verdict === 'approve') return { ...updated, status: 'approved' as const }
+          if (result.verdict === 'reject') return { ...updated, status: 'rejected' as const }
+          return updated
+        }))
+      } catch { /* continue */ }
+    }
+    setBulkAiLoading(false)
+  }
+
+  const toxicityColor = (t: ModerationResult['toxicity']) => ({
+    none: 'var(--admin-success)',
+    low: 'var(--admin-warning)',
+    medium: '#f97316',
+    high: 'var(--admin-error)',
+  }[t])
+
   const statusBadge = (status: Comment['status']) => {
     const statusStyles: Record<Comment['status'], { bg: string; color: string }> = {
       pending: { bg: 'var(--admin-warning-soft)', color: 'var(--admin-warning)' },
@@ -161,10 +209,25 @@ export default function CommentsPage({ onNavigate }: CommentsPageProps) {
   return (
     <AdminLayout currentPage="comments" onNavigate={onNavigate}>
       <div className="admin-page-header">
-        <h1 className="admin-page-title">Comments</h1>
-        <p className="admin-page-subtitle">
-          {comments.length} total · {pendingCount} pending review
-        </p>
+        <div>
+          <h1 className="admin-page-title">Comments</h1>
+          <p className="admin-page-subtitle">
+            {comments.length} total · {pendingCount} pending review
+          </p>
+        </div>
+        {aiEnabled && pendingCount > 0 && (
+          <button
+            className="btn-admin-primary"
+            onClick={runBulkAIModerate}
+            disabled={bulkAiLoading}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}
+          >
+            {bulkAiLoading
+              ? <Loader2 size={15} className="ai-spin" />
+              : <Sparkles size={15} />}
+            {bulkAiLoading ? 'Moderating…' : `AI Moderate All (${pendingCount})`}
+          </button>
+        )}
       </div>
 
       <div className="admin-stats-grid" style={{ marginBottom: '1.5rem' }}>
@@ -245,6 +308,7 @@ export default function CommentsPage({ onNavigate }: CommentsPageProps) {
                 <th>Article</th>
                 <th>Author</th>
                 <th>Status</th>
+                {aiEnabled && <th>AI Verdict</th>}
                 <th>Date</th>
                 <th style={{ width: 120 }}>Actions</th>
               </tr>
@@ -252,7 +316,7 @@ export default function CommentsPage({ onNavigate }: CommentsPageProps) {
             <tbody>
               {filteredComments.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="admin-table-empty">
+                  <td colSpan={aiEnabled ? 8 : 7} className="admin-table-empty">
                     No {statusFilter !== 'all' ? statusFilter : ''} comments found.
                   </td>
                 </tr>
@@ -286,6 +350,33 @@ export default function CommentsPage({ onNavigate }: CommentsPageProps) {
                       </div>
                     </td>
                     <td>{statusBadge(comment.status)}</td>
+                    {aiEnabled && (
+                      <td>
+                        {comment.aiVerdict ? (
+                          <div style={{ fontSize: '0.75rem' }}>
+                            <div style={{ fontWeight: 600, color: toxicityColor(comment.aiVerdict.toxicity), textTransform: 'capitalize' }}>
+                              {comment.aiVerdict.verdict}
+                            </div>
+                            <div style={{ color: 'var(--color-text-muted)', marginTop: 2, maxWidth: 160 }}>
+                              {comment.aiVerdict.reason}
+                            </div>
+                          </div>
+                        ) : comment.status === 'pending' ? (
+                          <button
+                            className="btn-admin-ghost"
+                            style={{ fontSize: '0.75rem', gap: '0.25rem' }}
+                            onClick={() => runAIModerate(comment.id)}
+                            disabled={aiLoadingIds.has(comment.id)}
+                            title="Run AI moderation"
+                          >
+                            {aiLoadingIds.has(comment.id)
+                              ? <Loader2 size={12} className="ai-spin" />
+                              : <Sparkles size={12} />}
+                            Analyse
+                          </button>
+                        ) : <span className="admin-text-faded">—</span>}
+                      </td>
+                    )}
                     <td className="admin-text-sm admin-text-muted">{comment.createdAt}</td>
                     <td>
                       <div className="admin-table-actions">

@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
-import { Check, Plus, Trash2, GripVertical, AlertTriangle, Search, Star, Eye, EyeOff, RefreshCw } from 'lucide-react'
+import { Check, Plus, Trash2, GripVertical, AlertTriangle, Search, Star, Eye, EyeOff, RefreshCw, X, ChevronUp, ChevronDown } from 'lucide-react'
 import AdminLayout from '../../components/admin/AdminLayout'
 import { getSiteConfig, saveSiteConfig, DEFAULT_CONFIG, type SiteConfig, type BreakingNewsItem, type HomepageSection } from '../../firebase/siteConfig'
 import { getCategories, type Category } from '../../firebase/categories'
 import { getLatestArticles } from '../../firebase/articles'
 import type { Article } from '../../data/articles'
-import { ChevronUp, ChevronDown } from 'lucide-react'
+
 
 interface HomepagePageProps {
   onNavigate: (path: string) => void
@@ -375,11 +375,4 @@ export default function HomepagePage({ onNavigate }: HomepagePageProps) {
   )
 }
 
-// Inline X icon since we imported from lucide but didn't destructure it
-function X({ size }: { size: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  )
-}
+

@@ -113,17 +113,35 @@
 
 /* ═════════════════════════════════════════════════════════════════════ */
 /* STAGGERED ANIMATIONS */
+/* Gate stagger behind .is-visible so it only fires when in viewport
+   (pair with the useReveal hook / IntersectionObserver).            */
 /* ═════════════════════════════════════════════════════════════════════ */
 
 .stagger-in > * {
-  animation: slideUp var(--duration-300) var(--ease-smooth);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity var(--duration-300) var(--ease-smooth),
+              transform var(--duration-300) var(--ease-smooth);
 }
 
-.stagger-in > *:nth-child(1) { animation-delay: var(--duration-100); }
-.stagger-in > *:nth-child(2) { animation-delay: var(--duration-200); }
-.stagger-in > *:nth-child(3) { animation-delay: var(--duration-300); }
-.stagger-in > *:nth-child(4) { animation-delay: var(--duration-400); }
-.stagger-in > *:nth-child(n+5) { animation-delay: var(--duration-500); }
+.stagger-in.is-visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stagger-in.is-visible > *:nth-child(1) { transition-delay: var(--duration-100); }
+.stagger-in.is-visible > *:nth-child(2) { transition-delay: var(--duration-200); }
+.stagger-in.is-visible > *:nth-child(3) { transition-delay: var(--duration-300); }
+.stagger-in.is-visible > *:nth-child(4) { transition-delay: var(--duration-400); }
+.stagger-in.is-visible > *:nth-child(n+5) { transition-delay: var(--duration-500); }
+
+@media (prefers-reduced-motion: reduce) {
+  .stagger-in > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
 
 /* ═════════════════════════════════════════════════════════════════════ */
 /* INTERACTIVE ANIMATIONS */
@@ -195,12 +213,11 @@
 }
 
 .btn:active:not(:disabled) {
-  animation: buttonPress var(--duration-150) var(--ease-bounce);
+  transform: scale(0.98) translateY(0);
 }
 
-.btn:hover:not(:disabled) {
-  animation: buttonHover var(--duration-200) var(--ease-smooth);
-}
+/* Hover lift is handled via transform in components.css per variant.
+   No separate animation here to avoid conflicting with transform. */
 
 /* ═════════════════════════════════════════════════════════════════════ */
 /* LOADING ANIMATIONS */

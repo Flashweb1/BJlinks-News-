@@ -1,4 +1,4 @@
-import { LayoutDashboard, FileText, Image, MessageSquare, BarChart3, Users, Settings, PlusCircle, Eye, LogOut, ChevronDown, FolderTree, LayoutTemplate } from 'lucide-react'
+import { LayoutDashboard, FileText, Image, MessageSquare, BarChart3, Users, Settings, PlusCircle, Eye, LogOut, FolderTree, LayoutTemplate } from 'lucide-react'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../firebase/init'
 
@@ -52,7 +52,7 @@ export default function AdminSidebar({ currentPage, onNavigate, notificationBadg
   }
 
   return (
-    <div className="sidebar">
+    <>
       {/* Branding */}
       <div className="sidebar-branding">
         <img
@@ -166,6 +166,6 @@ export default function AdminSidebar({ currentPage, onNavigate, notificationBadg
           <LogOut size={14} className="sidebar-user-logout" />
         </button>
       </div>
-    </div>
+    </>
   )
 }

@@ -13,8 +13,11 @@ import {
   Volume2,
   ChevronRight,
   Camera,
+  Sparkles,
+  Loader2,
 } from 'lucide-react'
 import { useBookmarks } from '../../contexts/BookmarkContext'
+import { summarizeArticle, isAIEnabled } from '../../utils/ai'
 
 interface ArticleDetailProps {
   article: Article
@@ -32,6 +35,9 @@ export default function ArticleDetail({
   const [fontFamily, setFontFamily] = useState<'serif' | 'sans'>('serif')
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
   const [showToast, setShowToast] = useState(false)
+  const [aiSummary, setAiSummary] = useState<string[]>([])
+  const [aiSummaryLoading, setAiSummaryLoading] = useState(false)
+  const [aiSummaryLoaded, setAiSummaryLoaded] = useState(false)
 
   // Clean up audio on unmount
   useEffect(() => {
@@ -40,6 +46,19 @@ export default function ArticleDetail({
         window.speechSynthesis.cancel()
       }
     }
+  }, [article.id])
+
+  // Load AI summary on mount if AI is enabled
+  useEffect(() => {
+    if (!isAIEnabled() || aiSummaryLoaded) return
+    setAiSummaryLoading(true)
+    summarizeArticle(article.title, article.body)
+      .then((bullets) => {
+        setAiSummary(bullets)
+        setAiSummaryLoaded(true)
+      })
+      .catch(() => {})
+      .finally(() => setAiSummaryLoading(false))
   }, [article.id])
 
   const handleShare = () => {
@@ -260,22 +279,35 @@ export default function ArticleDetail({
 
       {/* Article Content Container */}
       <div className="article-detail-content">
-        {/* Executive Summary / Key Takeaways Callout */}
+        {/* AI-Powered Executive Summary */}
         <aside className="key-takeaways" aria-label="Executive summary">
           <div className="takeaways-header">
             <span className="gold-bullet" aria-hidden="true">❖</span>
-            <h4>Executive Briefing</h4>
+            <h4>
+              Executive Briefing
+              {isAIEnabled() && (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', marginLeft: '0.5rem', fontSize: '0.6875rem', fontFamily: 'var(--font-mono)', color: 'var(--gold)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  <Sparkles size={11} /> AI
+                </span>
+              )}
+            </h4>
           </div>
-          <ul>
-            <li>
-              Key strategic developments, infrastructure expansion, and regional milestones outlined
-              in this report.
-            </li>
-            <li>
-              Direct implications for local commerce, administrative governance, and stakeholder
-              partnerships.
-            </li>
-          </ul>
+          {aiSummaryLoading ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--ink-3)', fontSize: '0.875rem', padding: '0.5rem 0' }}>
+              <Loader2 size={14} className="ai-spin" /> Generating summary…
+            </div>
+          ) : aiSummary.length > 0 ? (
+            <ul>
+              {aiSummary.map((point, i) => (
+                <li key={i}>{point}</li>
+              ))}
+            </ul>
+          ) : (
+            <ul>
+              <li>Key strategic developments, infrastructure expansion, and regional milestones outlined in this report.</li>
+              <li>Direct implications for local commerce, administrative governance, and stakeholder partnerships.</li>
+            </ul>
+          )}
         </aside>
 
         {/* Article Body */}

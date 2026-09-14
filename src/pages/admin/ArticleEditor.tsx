@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
-import { ArrowLeft, Save, Eye, Send } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { ArrowLeft, Save, Eye, Send, Sparkles, Tag, FileText, Wand2, Loader2, ChevronDown, ChevronUp } from 'lucide-react'
+import { generateDek, suggestTags, generateSEODescription, improveText, isAIEnabled } from '../../utils/ai'
 import type { Article } from '../../data/articles'
 import { categories } from '../../data/articles'
 import { addArticle, updateArticle, getArticleById, generateUniqueSlug } from '../../firebase/articles'
@@ -36,6 +37,15 @@ export default function ArticleEditor({ onNavigate, articleId }: ArticleEditorPr
   const [showPreview, setShowPreview] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
+
+  // AI state
+  const [aiOpen, setAiOpen] = useState(false)
+  const [aiLoading, setAiLoading] = useState<string | null>(null) // which task is running
+  const [aiError, setAiError] = useState<string | null>(null)
+  const [seoDesc, setSeoDesc] = useState('')
+  const [improveTarget, setImproveTarget] = useState<'dek' | 'body' | null>(null)
+  const aiEnabled = isAIEnabled()
+  const bodyRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     if (!user) {
@@ -128,6 +138,52 @@ export default function ArticleEditor({ onNavigate, articleId }: ArticleEditorPr
       publishedAt,
     }
   }
+
+  const runAI = async (task: string, fn: () => Promise<void>) => {
+    setAiLoading(task)
+    setAiError(null)
+    try {
+      await fn()
+    } catch (err: unknown) {
+      setAiError(err instanceof Error ? err.message : 'AI request failed.')
+    } finally {
+      setAiLoading(null)
+    }
+  }
+
+  const handleAIDek = () =>
+    runAI('dek', async () => {
+      if (!title.trim() && !body.trim()) { setAiError('Add a headline or body first.'); return }
+      const result = await generateDek(title, body)
+      if (result) setDek(result)
+    })
+
+  const handleAITags = () =>
+    runAI('tags', async () => {
+      if (!title.trim() && !body.trim()) { setAiError('Add a headline or body first.'); return }
+      const result = await suggestTags(title, body, category)
+      if (result.length) setTags(result.join(', '))
+    })
+
+  const handleAISEO = () =>
+    runAI('seo', async () => {
+      if (!title.trim() && !body.trim()) { setAiError('Add a headline or body first.'); return }
+      const result = await generateSEODescription(title, body)
+      if (result) setSeoDesc(result)
+    })
+
+  const handleAIImprove = (target: 'dek' | 'body') =>
+    runAI(`improve-${target}`, async () => {
+      const text = target === 'dek' ? dek : body
+      if (!text.trim()) { setAiError(`Add ${target === 'dek' ? 'a subtitle' : 'body text'} first.`); return }
+      setImproveTarget(target)
+      const result = await improveText(text.slice(0, 2000))
+      if (result) {
+        if (target === 'dek') setDek(result)
+        else setBody(result)
+      }
+      setImproveTarget(null)
+    })
 
   const handleSave = async (status: Status) => {
     const valid = validate()
@@ -222,6 +278,135 @@ export default function ArticleEditor({ onNavigate, articleId }: ArticleEditorPr
       ) : (
         <div className="editor-form">
           {error && <div className="error-banner" role="alert">{error}</div>}
+
+          {/* ── AI Writing Assistant Panel ── */}
+          <div className="ai-panel">
+            <button
+              type="button"
+              className="ai-panel-toggle"
+              onClick={() => setAiOpen(o => !o)}
+            >
+              <Sparkles size={15} />
+              <span>AI Writing Assistant</span>
+              {!aiEnabled && <span className="ai-badge-off">Configure API key</span>}
+              {aiEnabled && <span className="ai-badge-on">Active</span>}
+              {aiOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+
+            {aiOpen && (
+              <div className="ai-panel-body">
+                {aiError && (
+                  <div className="ai-error" role="alert">⚠ {aiError}</div>
+                )}
+
+                <div className="ai-actions">
+                  {/* Generate Dek */}
+                  <div className="ai-action-card">
+                    <div className="ai-action-header">
+                      <FileText size={14} />
+                      <span>Auto-generate Subtitle</span>
+                    </div>
+                    <p className="ai-action-desc">Creates a compelling dek from your headline and body.</p>
+                    <button
+                      type="button"
+                      className="ai-btn"
+                      onClick={handleAIDek}
+                      disabled={!aiEnabled || aiLoading !== null}
+                    >
+                      {aiLoading === 'dek' ? <Loader2 size={13} className="ai-spin" /> : <Sparkles size={13} />}
+                      Generate Dek
+                    </button>
+                  </div>
+
+                  {/* Suggest Tags */}
+                  <div className="ai-action-card">
+                    <div className="ai-action-header">
+                      <Tag size={14} />
+                      <span>Suggest Tags</span>
+                    </div>
+                    <p className="ai-action-desc">Generates 5–8 relevant tags from your article content.</p>
+                    <button
+                      type="button"
+                      className="ai-btn"
+                      onClick={handleAITags}
+                      disabled={!aiEnabled || aiLoading !== null}
+                    >
+                      {aiLoading === 'tags' ? <Loader2 size={13} className="ai-spin" /> : <Tag size={13} />}
+                      Suggest Tags
+                    </button>
+                  </div>
+
+                  {/* SEO Description */}
+                  <div className="ai-action-card">
+                    <div className="ai-action-header">
+                      <Wand2 size={14} />
+                      <span>SEO Meta Description</span>
+                    </div>
+                    <p className="ai-action-desc">Generates a Google-optimised meta description (≤155 chars).</p>
+                    <button
+                      type="button"
+                      className="ai-btn"
+                      onClick={handleAISEO}
+                      disabled={!aiEnabled || aiLoading !== null}
+                    >
+                      {aiLoading === 'seo' ? <Loader2 size={13} className="ai-spin" /> : <Wand2 size={13} />}
+                      Generate SEO
+                    </button>
+                    {seoDesc && (
+                      <div className="ai-result">
+                        <p className="ai-result-text">{seoDesc}</p>
+                        <span className={`ai-char-count ${seoDesc.length > 155 ? 'over' : ''}`}>
+                          {seoDesc.length}/155
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Improve Dek */}
+                  <div className="ai-action-card">
+                    <div className="ai-action-header">
+                      <Wand2 size={14} />
+                      <span>Polish Subtitle</span>
+                    </div>
+                    <p className="ai-action-desc">Rewrites your subtitle for clarity and impact.</p>
+                    <button
+                      type="button"
+                      className="ai-btn"
+                      onClick={() => handleAIImprove('dek')}
+                      disabled={!aiEnabled || aiLoading !== null || !dek.trim()}
+                    >
+                      {aiLoading === 'improve-dek' ? <Loader2 size={13} className="ai-spin" /> : <Wand2 size={13} />}
+                      Polish Dek
+                    </button>
+                  </div>
+
+                  {/* Improve Body */}
+                  <div className="ai-action-card">
+                    <div className="ai-action-header">
+                      <Wand2 size={14} />
+                      <span>Polish Body Text</span>
+                    </div>
+                    <p className="ai-action-desc">Improves flow and clarity of your article body (first 2000 chars).</p>
+                    <button
+                      type="button"
+                      className="ai-btn"
+                      onClick={() => handleAIImprove('body')}
+                      disabled={!aiEnabled || aiLoading !== null || !body.trim()}
+                    >
+                      {aiLoading === 'improve-body' ? <Loader2 size={13} className="ai-spin" /> : <Wand2 size={13} />}
+                      Polish Body
+                    </button>
+                  </div>
+                </div>
+
+                {!aiEnabled && (
+                  <p className="ai-setup-hint">
+                    Add <code>VITE_AI_API_KEY</code> to your <code>.env</code> file to enable AI features.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
 
           <div className="form-group">
             <label htmlFor="title">Headline</label>

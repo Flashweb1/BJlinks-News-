@@ -65,9 +65,9 @@
     padding: var(--button-padding-y) var(--button-padding-x-lg);
   }
 
-  /* Text size increases */
+  /* Use token-based font size to preserve rem scale */
   body {
-    font-size: 17px;
+    font-size: var(--text-base);
   }
 }
 
@@ -105,8 +105,9 @@
 /* ═════════════════════════════════════════════════════════════════════ */
 
 @media (min-width: 1280px) {
+  /* No extra padding needed — max-width + auto margins already center content */
   .page-content {
-    padding: 0 var(--space-10);
+    padding: 0 var(--space-6);
   }
 
   /* Two-column layouts */
@@ -135,14 +136,16 @@
 /* ═════════════════════════════════════════════════════════════════════ */
 
 @media (hover: none) and (pointer: coarse) {
-  /* Increase touch target sizes */
+  /* Increase touch target sizes only for interactive controls, not inline links */
   button,
-  a,
   input,
   select,
-  textarea {
+  textarea,
+  .btn,
+  .icon-btn,
+  .nav-link,
+  .search-btn {
     min-height: var(--touch-target);
-    min-width: var(--touch-target);
   }
 
   /* Remove hover effects on touch */
