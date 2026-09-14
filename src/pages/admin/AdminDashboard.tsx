@@ -15,21 +15,51 @@ interface AdminDashboardProps {
 
 type Stats = { total: number; published: number; drafts: number; reviews: number }
 
+function compute7DayTrend(articles: Article[], status?: string): { current: number; previous: number } {
+  const now = Date.now()
+  const D7 = 7 * 24 * 60 * 60 * 1000
+  const D14 = 14 * 24 * 60 * 60 * 1000
+  let current = 0
+  let previous = 0
+  for (const a of articles) {
+    if (status && a.status !== status) continue
+    const ts = a.createdAt instanceof Date
+      ? a.createdAt.getTime()
+      : (a as { createdAt?: { toMillis?: () => number } }).createdAt?.toMillis?.() ?? Number(new Date(a.publishedAt || 0))
+    if (Number.isNaN(ts)) continue
+    const age = now - ts
+    if (age < D7) current++
+    else if (age < D14) previous++
+  }
+  return { current, previous }
+}
+
+function formatTrend({ current, previous }: { current: number; previous: number }): { label: string; cls: 'positive' | 'negative' | 'neutral' } {
+  if (previous === 0 && current === 0) return { label: 'No data', cls: 'neutral' }
+  if (previous === 0) return { label: current > 0 ? 'New' : 'No data', cls: current > 0 ? 'positive' : 'neutral' }
+  const pct = Math.round(((current - previous) / previous) * 100)
+  const arrow = pct > 0 ? '↑' : pct < 0 ? '↓' : '→'
+  const cls: 'positive' | 'negative' | 'neutral' = pct > 0 ? 'positive' : pct < 0 ? 'negative' : 'neutral'
+  return { label: `${arrow} ${Math.abs(pct)}% vs last 7 days`, cls }
+}
+
 export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [stats, setStats] = useState<Stats>({ total: 0, published: 0, drafts: 0, reviews: 0 })
   const [articles, setArticles] = useState<Article[]>([])
+  const [allArticles, setAllArticles] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const allArticles = await getAllArticlesAdmin()
-        setArticles(allArticles.slice(0, 5))
+        const fetched = await getAllArticlesAdmin()
+        setAllArticles(fetched)
+        setArticles(fetched.slice(0, 5))
         setStats({
-          total: allArticles.length,
-          published: allArticles.filter((a) => a.status === 'published').length,
-          drafts: allArticles.filter((a) => a.status === 'draft').length,
-          reviews: allArticles.filter((a) => a.status === 'review').length,
+          total: fetched.length,
+          published: fetched.filter((a) => a.status === 'published').length,
+          drafts: fetched.filter((a) => a.status === 'draft').length,
+          reviews: fetched.filter((a) => a.status === 'review').length,
         })
       } catch (error: unknown) {
         const msg = error instanceof Error ? error.message : String(error)
@@ -41,13 +71,18 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     void loadData()
   }, [])
 
+  const totalTrend = formatTrend(compute7DayTrend(allArticles))
+  const pubTrend = formatTrend(compute7DayTrend(allArticles, 'published'))
+  const draftTrend = formatTrend(compute7DayTrend(allArticles, 'draft'))
+  const reviewTrend = formatTrend(compute7DayTrend(allArticles, 'review'))
+
   const formattedArticles = articles.map(a => ({
     id: a.id,
     title: a.title,
     category: a.category,
     author: a.author || 'Editor',
     status: a.status as 'published' | 'draft' | 'review',
-    views: 0, // Articles don't have view count in current schema
+    views: 0,
     date: a.publishedAt ? new Date(a.publishedAt).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -60,16 +95,15 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     thumbnail: a.image
   }))
 
-  const topStories = articles
+  const topStories = allArticles
     .filter(a => a.status === 'published')
     .slice(0, 5)
     .map((a, idx) => ({
       rank: idx + 1,
       title: a.title,
-      views: 0 // Placeholder view counts
+      views: 0
     }))
 
-  // Get current time greeting
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
   const date = new Date().toLocaleDateString('en-US', {
@@ -107,7 +141,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           </div>
           <div className="kpi-value">{stats.total}</div>
           <div className="kpi-label">Total Articles</div>
-          <div className="kpi-trend positive">↑ 12% vs last 7 days</div>
+          <div className={`kpi-trend ${totalTrend.cls}`}>{totalTrend.label}</div>
         </div>
 
         <div className="kpi-card">
@@ -118,7 +152,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           </div>
           <div className="kpi-value">{stats.published}</div>
           <div className="kpi-label">Published</div>
-          <div className="kpi-trend positive">↑ 18% vs last 7 days</div>
+          <div className={`kpi-trend ${pubTrend.cls}`}>{pubTrend.label}</div>
         </div>
 
         <div className="kpi-card">
@@ -129,7 +163,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           </div>
           <div className="kpi-value">{stats.drafts}</div>
           <div className="kpi-label">Drafts</div>
-          <div className="kpi-trend negative">↓ 8% vs last 7 days</div>
+          <div className={`kpi-trend ${draftTrend.cls}`}>{draftTrend.label}</div>
         </div>
 
         <div className="kpi-card">
@@ -140,7 +174,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           </div>
           <div className="kpi-value">{stats.reviews}</div>
           <div className="kpi-label">In Review</div>
-          <div className="kpi-trend positive">↑ 6% vs last 7 days</div>
+          <div className={`kpi-trend ${reviewTrend.cls}`}>{reviewTrend.label}</div>
         </div>
       </div>
 

@@ -2,14 +2,17 @@ import { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import type { Article } from '../data/articles'
 import { getFeaturedArticles, getLatestArticles, getArticlesByCategory } from '../firebase/articles'
-import HeroSlider from '../components/article/HeroSlider'
-import ArticleCard from '../components/article/ArticleCard'
-import CategoryIndex from '../components/article/CategoryIndex'
-import SectionHeader from '../components/ui/SectionHeader'
-import Reveal from '../components/ui/Reveal'
-import HomeSidebar from '../components/home/HomeSidebar'
+import HeroSection from '../components/home/HeroSection'
+import TopStoriesSidebar from '../components/home/TopStoriesSidebar'
+import LatestStoriesGrid from '../components/home/LatestStoriesGrid'
+import FeaturedMoreNewsletter from '../components/home/FeaturedMoreNewsletter'
+import TrendingSection from '../components/home/TrendingSection'
+import OpinionSection from '../components/home/OpinionSection'
+import VideoSection from '../components/home/VideoSection'
+import NewsletterCTA from '../components/home/NewsletterCTA'
 import { SkeletonHero, SkeletonCard, SkeletonLine } from '../components/common/SkeletonLoader'
 import { buildCanonicalUrl, getSiteConfig } from '../utils/security'
+import '../components/home/home.css'
 
 interface HomePageProps {
   onNavigate: (path: string) => void
@@ -28,16 +31,16 @@ export default function HomePage({ onNavigate }: HomePageProps) {
     let cancelled = false
 
     void Promise.all([
-      getFeaturedArticles(4),
-      getLatestArticles(8),
+      getFeaturedArticles(12),
+      getLatestArticles(24),
       getArticlesByCategory('Politics'),
       getArticlesByCategory('Business'),
     ]).then(([f, l, p, b]) => {
       if (cancelled) return
       setFeatured(f)
       setLatest(l)
-      setPolitics(p.slice(0, 3))
-      setBusiness(b.slice(0, 3))
+      setPolitics(p.slice(0, 5))
+      setBusiness(b.slice(0, 5))
       setLoading(false)
     })
 
@@ -71,84 +74,85 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           </div>
         </div>
       ) : (
-          <>
-            {featured.length > 0 && <HeroSlider articles={featured} onNavigate={onNavigate} />}
+        <div className="home-page-container">
+          {/* Hero Section */}
+          {(() => {
+            const hero = featured[0]
+            return hero ? <HeroSection article={hero} onNavigate={onNavigate} /> : null
+          })()}
 
-            <CategoryIndex onNavigate={onNavigate} />
+          {/* Hero + Sidebar Layout */}
+          <div className="section">
+            <div className="hero-sidebar-wrapper">
+              {featured.length > 1 && (
+                <TopStoriesSidebar articles={featured.slice(1, 6)} onNavigate={onNavigate} />
+              )}
+            </div>
+          </div>
 
-            <section className="section">
-              <Reveal>
-                <SectionHeader title="Latest News" accent="Live" count={latest.length} />
-              </Reveal>
-              <div className="home-main-grid">
-                <div className="article-grid">
-                  {latest.map((article, i) => (
-                    <ArticleCard
-                      key={article.id}
-                      article={article}
-                      onNavigate={onNavigate}
-                      variant="grid"
-                      reveal
-                      revealDelay={(i % 3) * 90}
-                    />
-                  ))}
-                </div>
-                <Reveal variant="fade" delay={150} className="home-sidebar-sticky">
-                  <HomeSidebar articles={latest} onNavigate={onNavigate} />
-                </Reveal>
+          {/* Latest Stories Grid */}
+          <div className="section">
+            <LatestStoriesGrid articles={latest} onNavigate={onNavigate} />
+          </div>
+
+          {/* Featured + More News + Newsletter */}
+          {(() => {
+            const primary = featured[0]
+            const fallback = featured[6] ?? primary
+            if (!fallback) return null
+            return (
+              <div className="section">
+                <FeaturedMoreNewsletter
+                  featuredArticle={fallback}
+                  moreNewsArticles={latest.slice(0, 5)}
+                  onNavigate={onNavigate}
+                />
               </div>
-            </section>
+            )
+          })()}
 
-            {politics.length > 0 && (
-              <section className="section">
-                <Reveal>
-                  <SectionHeader
-                    title="Politics"
-                    accent="D.C. & Abuja Desk"
-                    onSeeAll={() => onNavigate('/category/politics')}
-                  />
-                </Reveal>
-                <div className="article-row">
-                  {politics.map((article, i) => (
-                    <ArticleCard
-                      key={article.id}
-                      article={article}
-                      onNavigate={onNavigate}
-                      variant="compact"
-                      reveal
-                      revealDelay={i * 90}
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
+          {/* Trending Section */}
+          {latest.length > 0 && (
+            <div className="section">
+              <TrendingSection articles={latest} onNavigate={onNavigate} />
+            </div>
+          )}
 
-            {business.length > 0 && (
-              <section className="section">
-                <Reveal>
-                  <SectionHeader
-                    title="Business"
-                    accent="Markets & Money"
-                    onSeeAll={() => onNavigate('/category/business')}
-                  />
-                </Reveal>
-                <div className="article-row">
-                  {business.map((article, i) => (
-                    <ArticleCard
-                      key={article.id}
-                      article={article}
-                      onNavigate={onNavigate}
-                      variant="compact"
-                      reveal
-                      revealDelay={i * 90}
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
-          </>
-        )
-      }
+          {/* Opinion Section */}
+          {politics.length > 0 && (
+            <div className="section">
+              <OpinionSection articles={politics} onNavigate={onNavigate} />
+            </div>
+          )}
+
+          {/* Video Section */}
+          {(() => {
+            const videoArticle = featured[8]
+            if (!videoArticle) return null
+            return (
+              <div className="section">
+                <VideoSection
+                  title="Featured Video Story"
+                  description="Watch our latest video report covering the most important stories of the day."
+                  thumbnail={videoArticle.image}
+                />
+              </div>
+            )
+          })()}
+
+          {/* Business Opinion Section */}
+          {business.length > 0 && (
+            <div className="section">
+              <OpinionSection articles={business} onNavigate={onNavigate} />
+            </div>
+          )}
+
+          {/* Newsletter CTA */}
+          <div className="section">
+            <NewsletterCTA />
+          </div>
+        </div>
+      )}
     </main>
   )
 }

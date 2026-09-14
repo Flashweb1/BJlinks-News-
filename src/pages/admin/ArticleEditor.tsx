@@ -25,13 +25,7 @@ export default function ArticleEditor({ onNavigate, articleId }: ArticleEditorPr
   const { user } = useAuth()
   const navigate = useNavigate()
 
-  if (!user) {
-    void navigate('/admin/login', { replace: true })
-    return null
-  }
-
   const [existingArticle, setExistingArticle] = useState<Article | null>(null)
-
   const [title, setTitle] = useState<string>('')
   const [dek, setDek] = useState<string>('')
   const [category, setCategory] = useState<string>('Politics')
@@ -44,7 +38,13 @@ export default function ArticleEditor({ onNavigate, articleId }: ArticleEditorPr
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!articleId) return
+    if (!user) {
+      void navigate('/admin/login', { replace: true })
+    }
+  }, [user, navigate])
+
+  useEffect(() => {
+    if (!articleId || !user) return
     let cancelled = false
     void (async () => {
       try {
@@ -66,7 +66,9 @@ export default function ArticleEditor({ onNavigate, articleId }: ArticleEditorPr
     return () => {
       cancelled = true
     }
-  }, [articleId])
+  }, [articleId, user])
+
+  if (!user) return null
 
   const validate = (): null | {
     title: string

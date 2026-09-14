@@ -21,12 +21,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  // TEMPORARY: Bypass auth for testing - remove before production
-  const DEV_BYPASS_AUTH = true
+  const DEV_BYPASS_AUTH =
+    import.meta.env.DEV && import.meta.env.VITE_DEV_BYPASS_AUTH === 'true'
 
   useEffect(() => {
     if (DEV_BYPASS_AUTH) {
-      // Mock user for development
       setUser({ email: 'dev@bjlinks.test', uid: 'dev-user-123' } as User)
       setIsAdmin(true)
       setLoading(false)
@@ -40,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     return () => unsubscribe()
-  }, [])
+  }, [DEV_BYPASS_AUTH])
 
   const handleSignOut = async () => {
     await signOutUser()

@@ -8,6 +8,7 @@ interface StatsCardProps {
   trend?: {
     value: number
     direction: 'up' | 'down'
+    label?: string
   }
   variant?: 'primary' | 'success' | 'warning' | 'info'
 }

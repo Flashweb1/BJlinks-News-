@@ -12,11 +12,34 @@ import {
   getDoc,
   Timestamp,
   limit,
+  documentId,
 } from 'firebase/firestore'
 import { db } from './init'
 import { Article, sampleArticles } from '../data/articles'
+import { logger } from '../utils/logger'
+import { logErrorToSentry } from '../utils/sentry'
 
 const ARTICLES_COLLECTION = 'articles'
+const IS_DEV = import.meta.env.DEV === true
+const IN_BATCH = 30
+
+function fallbackOrEmpty<T extends unknown[]>(fallback: T, label: string, err?: unknown): T {
+  if (err !== undefined) {
+    logger.error(`[firebase:articles] ${label} failed`, err, { label })
+    if (!IS_DEV) logErrorToSentry(err, `firebase:articles:${label}`)
+  }
+  if (IS_DEV) return fallback
+  return ([] as unknown) as T
+}
+
+function fallbackOrUndefined<T>(fallback: T | undefined, label: string, err?: unknown): T | undefined {
+  if (err !== undefined) {
+    logger.error(`[firebase:articles] ${label} failed`, err, { label })
+    if (!IS_DEV) logErrorToSentry(err, `firebase:articles:${label}`)
+  }
+  if (IS_DEV) return fallback
+  return undefined
+}
 
 export const subscribeToArticles = (
   callback: (articles: Article[]) => void,
@@ -35,12 +58,12 @@ export const subscribeToArticles = (
         const list: Article[] = docs
           .map((d) => ({ id: d.id, ...d.data() }) as Article)
           .filter((a) => a && typeof a.id === 'string')
-        callback(list.length > 0 ? list : sampleArticles)
+        callback(list.length > 0 ? list : fallbackOrEmpty(sampleArticles, 'subscribeToArticles.empty'))
       },
-      () => callback(sampleArticles)
+      (err) => callback(fallbackOrEmpty(sampleArticles, 'subscribeToArticles', err))
     )
-  } catch {
-    callback(sampleArticles)
+  } catch (err) {
+    callback(fallbackOrEmpty(sampleArticles, 'subscribeToArticles.setup', err))
     return () => {}
   }
 }
@@ -50,9 +73,9 @@ export const getArticles = async (): Promise<Article[]> => {
     const q = query(collection(db, ARTICLES_COLLECTION), orderBy('publishedAt', 'desc'))
     const snapshot = await getDocs(q)
     const docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Article)
-    return docs.length > 0 ? docs : sampleArticles
-  } catch {
-    return sampleArticles
+    return docs.length > 0 ? docs : fallbackOrEmpty(sampleArticles, 'getArticles.empty')
+  } catch (err) {
+    return fallbackOrEmpty(sampleArticles, 'getArticles', err)
   }
 }
 
@@ -67,9 +90,17 @@ export const getArticlesByCategory = async (category: string): Promise<Article[]
     const snapshot = await getDocs(q)
     const docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Article)
     if (docs.length > 0) return docs
-  } catch {
+    return fallbackOrEmpty(
+      sampleArticles.filter((a) => a.category.toLowerCase() === category.toLowerCase()),
+      'getArticlesByCategory.empty'
+    )
+  } catch (err) {
+    return fallbackOrEmpty(
+      sampleArticles.filter((a) => a.category.toLowerCase() === category.toLowerCase()),
+      'getArticlesByCategory',
+      err
+    )
   }
-  return sampleArticles.filter((a) => a.category.toLowerCase() === category.toLowerCase())
 }
 
 export const getArticleBySlug = async (slug: string): Promise<Article | undefined> => {
@@ -82,14 +113,22 @@ export const getArticleBySlug = async (slug: string): Promise<Article | undefine
     const snapshot = await getDocs(q)
     const first = snapshot.docs[0]
     if (first) return { id: first.id, ...first.data() } as Article
-  } catch {
+    return fallbackOrUndefined(
+      sampleArticles.find((a) => a.slug === slug),
+      'getArticleBySlug.empty'
+    )
+  } catch (err) {
+    return fallbackOrUndefined(
+      sampleArticles.find((a) => a.slug === slug),
+      'getArticleBySlug',
+      err
+    )
   }
-  return sampleArticles.find((a) => a.slug === slug) ?? sampleArticles[0]
 }
 
 export const getFeaturedArticle = async (): Promise<Article | undefined> => {
   const featured = await getFeaturedArticles()
-  return featured[0]
+  return fallbackOrUndefined(featured[0], 'getFeaturedArticle.empty')
 }
 
 export const getFeaturedArticles = async (count: number = 4): Promise<Article[]> => {
@@ -104,12 +143,26 @@ export const getFeaturedArticles = async (count: number = 4): Promise<Article[]>
     const snapshot = await getDocs(q)
     const docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Article)
     if (docs.length > 0) return docs.slice(0, count)
-  } catch {
+    const featured = sampleArticles.filter((a) => a.featured)
+    const pad =
+      featured.length >= count
+        ? featured.slice(0, count)
+        : (() => {
+            const idSet = new Set(featured.map((a) => a.id))
+            return featured.concat(sampleArticles.filter((a) => !idSet.has(a.id))).slice(0, count)
+          })()
+    return fallbackOrEmpty(pad, 'getFeaturedArticles.empty')
+  } catch (err) {
+    const featured = sampleArticles.filter((a) => a.featured)
+    const pad =
+      featured.length >= count
+        ? featured.slice(0, count)
+        : (() => {
+            const idSet = new Set(featured.map((a) => a.id))
+            return featured.concat(sampleArticles.filter((a) => !idSet.has(a.id))).slice(0, count)
+          })()
+    return fallbackOrEmpty(pad, 'getFeaturedArticles', err)
   }
-  const featured = sampleArticles.filter((a) => a.featured)
-  if (featured.length >= count) return featured.slice(0, count)
-  const idSet = new Set(featured.map((a) => a.id))
-  return featured.concat(sampleArticles.filter((a) => !idSet.has(a.id))).slice(0, count)
 }
 
 export const getLatestArticles = async (count: number = 6): Promise<Article[]> => {
@@ -122,9 +175,10 @@ export const getLatestArticles = async (count: number = 6): Promise<Article[]> =
     const snapshot = await getDocs(q)
     const docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Article)
     if (docs.length > 0) return docs.slice(0, count)
-  } catch {
+    return fallbackOrEmpty(sampleArticles.slice(0, count), 'getLatestArticles.empty')
+  } catch (err) {
+    return fallbackOrEmpty(sampleArticles.slice(0, count), 'getLatestArticles', err)
   }
-  return sampleArticles.slice(0, count)
 }
 
 export const getRelatedArticles = async (
@@ -144,9 +198,17 @@ export const getRelatedArticles = async (
       .map((d) => ({ id: d.id, ...d.data() }) as Article)
       .filter((a) => a.id !== articleId)
     if (docs.length > 0) return docs.slice(0, limit)
-  } catch {
+    return fallbackOrEmpty(
+      sampleArticles.filter((a) => a.id !== articleId).slice(0, limit),
+      'getRelatedArticles.empty'
+    )
+  } catch (err) {
+    return fallbackOrEmpty(
+      sampleArticles.filter((a) => a.id !== articleId).slice(0, limit),
+      'getRelatedArticles',
+      err
+    )
   }
-  return sampleArticles.filter((a) => a.id !== articleId).slice(0, limit)
 }
 
 export const searchArticles = async (queryText: string): Promise<Article[]> => {
@@ -165,7 +227,9 @@ export const searchArticles = async (queryText: string): Promise<Article[]> => {
       a.dek.toLowerCase().includes(lowerQuery) ||
       a.tags.some((t) => t.toLowerCase().includes(lowerQuery))
     )
-  } catch {
+  } catch (err) {
+    logger.error('[firebase:articles] searchArticles failed', err, { label: 'searchArticles' })
+    if (!IS_DEV) logErrorToSentry(err, 'firebase:articles:searchArticles')
     return []
   }
 }
@@ -257,18 +321,46 @@ export const getArticlesByStatus = async (status: string): Promise<Article[]> =>
     )
     const snapshot = await getDocs(q)
     return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Article)
-  } catch {
+  } catch (err) {
+    logger.error('[firebase:articles] getArticlesByStatus failed', err, { status })
+    if (!IS_DEV) logErrorToSentry(err, 'firebase:articles:getArticlesByStatus')
     return []
   }
+}
+
+function chunkArray<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = []
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
+  return out
 }
 
 export const getArticlesByIds = async (ids: string[]): Promise<Article[]> => {
   if (ids.length === 0) return []
   try {
-    const all = await getArticles()
-    const idSet = new Set(ids)
-    return all.filter((a) => idSet.has(a.id))
-  } catch {
+    const batches = chunkArray([...new Set(ids)], IN_BATCH)
+    const promises = batches.map((batch) =>
+      getDocs(
+        query(
+          collection(db, ARTICLES_COLLECTION),
+          where(documentId(), 'in', batch)
+        )
+      )
+    )
+    const snaps = await Promise.all(promises)
+    const map = new Map<string, Article>()
+    for (const snap of snaps) {
+      for (const d of snap.docs) {
+        const a = { id: d.id, ...d.data() } as Article
+        map.set(a.id, a)
+      }
+    }
+    const order = new Map(ids.map((id, idx) => [id, idx]))
+    return [...map.values()].sort(
+      (a, b) => (order.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (order.get(b.id) ?? Number.MAX_SAFE_INTEGER)
+    )
+  } catch (err) {
+    logger.error('[firebase:articles] getArticlesByIds failed', err, { count: ids.length })
+    if (!IS_DEV) logErrorToSentry(err, 'firebase:articles:getArticlesByIds')
     return []
   }
 }
