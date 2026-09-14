@@ -16,6 +16,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark)
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
+    document.body.setAttribute('data-theme', isDark ? 'dark' : 'light')
     localStorage.setItem('bjlinks-theme', isDark ? 'dark' : 'light')
   }, [isDark])
 

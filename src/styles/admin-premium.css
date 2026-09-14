@@ -4059,9 +4059,25 @@ body {
 }
 
 /* ── Responsive (Admin Section Pages) ────────────────── */
+.admin-analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-block: 1.5rem;
+}
+
 @media (min-width: 640px) {
   .admin-stats-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .admin-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 768px) {
+  .admin-analytics-grid {
+    grid-template-columns: 1fr 380px;
   }
 }
 

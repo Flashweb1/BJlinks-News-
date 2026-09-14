@@ -32,6 +32,8 @@ const CommentsPage = lazy(() => import('./pages/admin/CommentsPage'))
 const AnalyticsPage = lazy(() => import('./pages/admin/AnalyticsPage'))
 const UsersPage = lazy(() => import('./pages/admin/UsersPage'))
 const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'))
+const CategoriesPage = lazy(() => import('./pages/admin/CategoriesPage'))
+const HomepagePage = lazy(() => import('./pages/admin/HomepagePage'))
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
 const TermsPage = lazy(() => import('./pages/TermsPage'))
 
@@ -44,6 +46,8 @@ type PageKind =
   | 'admin-login'
   | 'admin-dashboard'
   | 'admin-articles'
+  | 'admin-categories'
+  | 'admin-homepage'
   | 'admin-media'
   | 'admin-comments'
   | 'admin-analytics'
@@ -62,6 +66,8 @@ function classifyPath(pathname: string): PageKind {
   if (pathname === '/admin/login') return 'admin-login'
   if (pathname === '/admin') return 'admin-dashboard'
   if (pathname === '/admin/articles') return 'admin-articles'
+  if (pathname === '/admin/categories') return 'admin-categories'
+  if (pathname === '/admin/homepage') return 'admin-homepage'
   if (pathname === '/admin/media') return 'admin-media'
   if (pathname === '/admin/comments') return 'admin-comments'
   if (pathname === '/admin/analytics') return 'admin-analytics'
@@ -78,17 +84,7 @@ function isArticleReading(kind: PageKind): boolean {
 }
 
 function isAdminPage(kind: PageKind): boolean {
-  return (
-    kind === 'admin-login' ||
-    kind === 'admin-dashboard' ||
-    kind === 'admin-articles' ||
-    kind === 'admin-media' ||
-    kind === 'admin-comments' ||
-    kind === 'admin-analytics' ||
-    kind === 'admin-users' ||
-    kind === 'admin-settings' ||
-    kind === 'admin-editor'
-  )
+  return kind.startsWith('admin-')
 }
 
 function isPolicyPage(kind: PageKind): boolean {
@@ -260,6 +256,22 @@ function Layout() {
                 element={
                   <RequireAdmin>
                     <ArticlesPage onNavigate={navigate} />
+                  </RequireAdmin>
+                }
+              />
+              <Route
+                path="/admin/categories"
+                element={
+                  <RequireAdmin>
+                    <CategoriesPage onNavigate={navigate} />
+                  </RequireAdmin>
+                }
+              />
+              <Route
+                path="/admin/homepage"
+                element={
+                  <RequireAdmin>
+                    <HomepagePage onNavigate={navigate} />
                   </RequireAdmin>
                 }
               />

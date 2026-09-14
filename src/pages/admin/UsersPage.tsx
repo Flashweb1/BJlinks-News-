@@ -77,7 +77,7 @@ export default function UsersPage({ onNavigate }: UsersPageProps) {
         </button>
       </div>
 
-      <div className="admin-stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: '1.5rem' }}>
+      <div className="admin-stats-grid" style={{ marginBottom: '1.5rem' }}>
         <div className="admin-stat-card">
           <div className="admin-stat-icon primary"><Crown size={20} /></div>
           <div className="admin-stat-content">

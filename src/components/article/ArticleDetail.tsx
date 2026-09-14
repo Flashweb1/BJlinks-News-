@@ -1,6 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Article } from '../../data/articles'
-import { Bookmark, BookmarkCheck, ArrowLeft, Clock, Share2, Type, Play, Pause, Check, Volume2 } from 'lucide-react'
+import {
+  Bookmark,
+  BookmarkCheck,
+  ArrowLeft,
+  Clock,
+  Share2,
+  Type,
+  Play,
+  Pause,
+  Check,
+  Volume2,
+  ChevronRight,
+  Camera,
+} from 'lucide-react'
 import { useBookmarks } from '../../contexts/BookmarkContext'
 
 interface ArticleDetailProps {
@@ -9,20 +22,35 @@ interface ArticleDetailProps {
   relatedArticles?: Article[]
 }
 
-export default function ArticleDetail({ article, onNavigate, relatedArticles = [] }: ArticleDetailProps) {
+export default function ArticleDetail({
+  article,
+  onNavigate,
+  relatedArticles = [],
+}: ArticleDetailProps) {
   const { toggleBookmark, isBookmarked } = useBookmarks()
   const [fontSize, setFontSize] = useState<'normal' | 'large' | 'xlarge'>('normal')
   const [fontFamily, setFontFamily] = useState<'serif' | 'sans'>('serif')
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
   const [showToast, setShowToast] = useState(false)
 
+  // Clean up audio on unmount
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel()
+      }
+    }
+  }, [article.id])
+
   const handleShare = () => {
     if (navigator.share) {
-      navigator.share({
-        title: article.title,
-        text: article.dek,
-        url: window.location.href,
-      }).catch(() => {})
+      navigator
+        .share({
+          title: article.title,
+          text: article.dek,
+          url: window.location.href,
+        })
+        .catch(() => {})
     } else {
       navigator.clipboard.writeText(window.location.href)
       setShowToast(true)
@@ -31,119 +59,227 @@ export default function ArticleDetail({ article, onNavigate, relatedArticles = [
   }
 
   const toggleAudio = () => {
-    setIsPlayingAudio(!isPlayingAudio)
+    if (!isPlayingAudio) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel()
+        const textToRead = `${article.title}. ${article.dek}. ${article.body.join(' ')}`
+        const utterance = new SpeechSynthesisUtterance(textToRead)
+        utterance.rate = 1.0
+        utterance.onend = () => setIsPlayingAudio(false)
+        utterance.onerror = () => setIsPlayingAudio(false)
+        window.speechSynthesis.speak(utterance)
+      }
+      setIsPlayingAudio(true)
+    } else {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel()
+      }
+      setIsPlayingAudio(false)
+    }
   }
 
   return (
-    <article className={`article-detail font-size-${fontSize} font-family-${fontFamily}`}>
+    <article
+      className={`article-detail font-size-${fontSize} font-family-${fontFamily}`}
+      itemScope
+      itemType="https://schema.org/NewsArticle"
+    >
       {showToast && (
-        <div className="toast-notification">
+        <div className="toast-notification" role="status" aria-live="polite">
           <Check size={16} /> Link copied to clipboard
         </div>
       )}
 
-      <div className="article-detail-header">
-        <button className="back-btn" onClick={() => onNavigate('/')}>
-          <ArrowLeft size={18} /> Back
-        </button>
+      {/* Top Breadcrumbs & Utility Actions */}
+      <div className="article-detail-topbar">
+        <nav className="article-breadcrumbs" aria-label="Breadcrumb">
+          <button className="breadcrumb-link" onClick={() => onNavigate('/')}>
+            <ArrowLeft size={15} /> Home
+          </button>
+          <ChevronRight size={13} className="breadcrumb-sep" aria-hidden="true" />
+          <button
+            className="breadcrumb-link"
+            onClick={() => onNavigate(`/category/${article.category.toLowerCase()}`)}
+          >
+            {article.category}
+          </button>
+        </nav>
 
-        <div className="article-reader-toolbar">
+        {/* Reader Customization Toolbar */}
+        <div className="article-reader-toolbar" role="toolbar" aria-label="Reading options">
           <div className="toolbar-group" title="Adjust text size">
             <button
               className={`toolbar-btn ${fontSize === 'normal' ? 'active' : ''}`}
               onClick={() => setFontSize('normal')}
+              aria-label="Normal text size"
             >
               A<sup>-</sup>
             </button>
             <button
               className={`toolbar-btn ${fontSize === 'large' ? 'active' : ''}`}
               onClick={() => setFontSize('large')}
+              aria-label="Large text size"
             >
               A
             </button>
             <button
               className={`toolbar-btn ${fontSize === 'xlarge' ? 'active' : ''}`}
               onClick={() => setFontSize('xlarge')}
+              aria-label="Extra large text size"
             >
               A<sup>+</sup>
             </button>
           </div>
 
-          <div className="toolbar-divider" />
+          <div className="toolbar-divider" aria-hidden="true" />
 
           <button
             className={`toolbar-btn ${fontFamily === 'serif' ? 'active' : ''}`}
             onClick={() => setFontFamily(fontFamily === 'serif' ? 'sans' : 'serif')}
             title="Toggle Serif / Sans Font"
+            aria-label="Toggle typography typeface"
           >
             <Type size={15} />
             <span>{fontFamily === 'serif' ? 'Serif' : 'Sans'}</span>
           </button>
-        </div>
 
-        <div className="article-detail-actions">
+          <div className="toolbar-divider" aria-hidden="true" />
+
           <button
-            className="icon-btn"
+            className={`toolbar-btn ${isBookmarked(article.id) ? 'active' : ''}`}
             onClick={() => toggleBookmark(article.id)}
-            title={isBookmarked(article.id) ? 'Remove bookmark' : 'Bookmark'}
+            title={isBookmarked(article.id) ? 'Remove bookmark' : 'Bookmark story'}
+            aria-label="Bookmark this article"
           >
-            {isBookmarked(article.id) ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
+            {isBookmarked(article.id) ? (
+              <BookmarkCheck size={16} className="bookmarked-icon" />
+            ) : (
+              <Bookmark size={16} />
+            )}
+            <span className="btn-label">{isBookmarked(article.id) ? 'Saved' : 'Save'}</span>
           </button>
-          <button className="icon-btn" onClick={handleShare} title="Share Article">
-            <Share2 size={18} />
+
+          <button
+            className="toolbar-btn"
+            onClick={handleShare}
+            title="Share article"
+            aria-label="Share article"
+          >
+            <Share2 size={16} />
+            <span className="btn-label">Share</span>
           </button>
         </div>
       </div>
 
-      <header className="article-detail-hero">
-        <img src={article.image} alt={article.title} />
-        <div className="article-detail-hero-overlay">
-          <span className="kicker">{article.category}</span>
-          <h1>{article.title}</h1>
+      {/* Editorial Header Section */}
+      <header className="article-detail-header-editorial">
+        <div className="article-kicker-badge">
+          <span className="kicker-pill">{article.category}</span>
+          <span className="kicker-edition">Exclusive Report</span>
+        </div>
+
+        <h1 className="article-headline-editorial" itemProp="headline">
+          {article.title}
+        </h1>
+
+        <p className="article-dek-editorial" itemProp="description">
+          {article.dek}
+        </p>
+
+        <div className="article-byline-editorial">
+          <div className="author-details">
+            <div className="author-avatar-initials" aria-hidden="true">
+              {article.author
+                .split(' ')
+                .map((n) => n[0])
+                .join('')
+                .slice(0, 2)
+                .toUpperCase()}
+            </div>
+            <div className="author-meta">
+              <span className="author-name" itemProp="author">
+                {article.author}
+              </span>
+              <span className="author-role">{article.authorRole}</span>
+            </div>
+          </div>
+
+          <div className="publication-meta">
+            <time className="publish-date" dateTime={article.publishedAt}>
+              {article.publishedAt}
+            </time>
+            <span className="meta-sep" aria-hidden="true">·</span>
+            <span className="read-time-pill">
+              <Clock size={13} aria-hidden="true" />
+              <span>{article.readTime} min read</span>
+            </span>
+          </div>
         </div>
       </header>
 
+      {/* Hero Photography & Caption */}
+      <figure className="article-hero-figure">
+        <div className="article-hero-image-wrap">
+          <img
+            src={article.image}
+            alt={article.title}
+            className="article-hero-img"
+            itemProp="image"
+          />
+        </div>
+        <figcaption className="article-hero-caption">
+          <Camera size={13} aria-hidden="true" />
+          <span>
+            Featured documentation: {article.title}. Photo via Bjlinks News Editorial Archive.
+          </span>
+        </figcaption>
+      </figure>
+
+      {/* Audio Listen Bar */}
+      <section className="audio-listen-bar" aria-label="Listen to audio version">
+        <button
+          className={`audio-play-btn ${isPlayingAudio ? 'is-playing' : ''}`}
+          onClick={toggleAudio}
+          aria-label={isPlayingAudio ? 'Pause audio narration' : 'Play audio narration'}
+        >
+          {isPlayingAudio ? <Pause size={20} /> : <Play size={20} />}
+        </button>
+        <div className="audio-info">
+          <div className="audio-title">
+            <Volume2 size={15} />
+            <span>Listen to this story</span>
+            {isPlayingAudio && <span className="audio-live-pill">Playing</span>}
+          </div>
+          <div className="audio-subtitle">
+            {isPlayingAudio
+              ? 'Reading full story via voice narration...'
+              : `${article.readTime} min audio briefing available`}
+          </div>
+        </div>
+      </section>
+
+      {/* Article Content Container */}
       <div className="article-detail-content">
-        <div className="article-detail-meta">
-          <div className="byline">
-            <span className="author">{article.author}</span>
-            <span className="author-role">{article.authorRole}</span>
+        {/* Executive Summary / Key Takeaways Callout */}
+        <aside className="key-takeaways" aria-label="Executive summary">
+          <div className="takeaways-header">
+            <span className="gold-bullet" aria-hidden="true">❖</span>
+            <h4>Executive Briefing</h4>
           </div>
-          <div className="article-detail-info">
-            <span>{article.publishedAt}</span>
-            <span className="sep">·</span>
-            <Clock size={14} />
-            <span>{article.readTime} min read</span>
-          </div>
-        </div>
-
-        {/* Audio Listen Bar */}
-        <div className="audio-listen-bar">
-          <button className="audio-play-btn" onClick={toggleAudio}>
-            {isPlayingAudio ? <Pause size={18} /> : <Play size={18} />}
-          </button>
-          <div className="audio-info">
-            <div className="audio-title">
-              <Volume2 size={14} /> Listen to Article (Audio Version)
-            </div>
-            <div className="audio-subtitle">
-              {isPlayingAudio ? 'Playing AI Narration...' : `${article.readTime} min audio summary available`}
-            </div>
-          </div>
-        </div>
-
-        <p className="article-dek">{article.dek}</p>
-
-        {/* Key Takeaways Box */}
-        <div className="key-takeaways">
-          <h4><span className="gold-bullet">❖</span> Executive Summary</h4>
           <ul>
-            <li>Core insights and major updates reported in this official release.</li>
-            <li>Key decisions affecting local commerce, infrastructure, and community development.</li>
+            <li>
+              Key strategic developments, infrastructure expansion, and regional milestones outlined
+              in this report.
+            </li>
+            <li>
+              Direct implications for local commerce, administrative governance, and stakeholder
+              partnerships.
+            </li>
           </ul>
-        </div>
+        </aside>
 
-        <div className="article-body">
+        {/* Article Body */}
+        <div className="article-body" itemProp="articleBody">
           {article.body.map((paragraph, i) => (
             <p key={i} className={i === 0 ? 'first-paragraph' : ''}>
               {i === 0 && <span className="drop-cap">{paragraph.charAt(0)}</span>}
@@ -152,31 +288,65 @@ export default function ArticleDetail({ article, onNavigate, relatedArticles = [
           ))}
         </div>
 
-        <div className="article-tags">
+        {/* Tags Pill Cloud */}
+        <div className="article-tags" aria-label="Article topics">
+          <span className="tags-label">Related Topics:</span>
           {article.tags.map((tag) => (
-            <span key={tag} className="tag">{tag}</span>
+            <button
+              key={tag}
+              className="tag-pill"
+              onClick={() => onNavigate(`/search?q=${encodeURIComponent(tag)}`)}
+            >
+              #{tag}
+            </button>
           ))}
         </div>
 
-        <div className="article-end-mark">■</div>
+        {/* Editorial End Mark */}
+        <div className="article-end-mark" aria-hidden="true">
+          <span>❖ ❖ ❖</span>
+        </div>
       </div>
 
+      {/* Related Stories Section */}
       {relatedArticles.length > 0 && (
-        <aside className="related-articles">
-          <h3>Related Stories</h3>
-          <div className="related-grid">
+        <aside className="related-articles" aria-label="Related stories">
+          <div className="section-header-home">
+            <div className="section-title-wrapper">
+              <h2 className="section-title">Related Stories</h2>
+              <p className="section-subtitle">More from {article.category}</p>
+            </div>
+            <div className="section-rule" />
+          </div>
+
+          <div className="related-editorial-grid">
             {relatedArticles.map((related) => (
-              <div
+              <article
                 key={related.id}
-                className="related-card"
+                className="related-card-item"
                 onClick={() => onNavigate(`/article/${related.slug}`)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    onNavigate(`/article/${related.slug}`)
+                  }
+                }}
               >
-                <img src={related.image} alt={related.title} loading="lazy" />
-                <div>
-                  <span className="kicker">{related.category}</span>
-                  <h4>{related.title}</h4>
+                <div className="related-card-image">
+                  <img src={related.image} alt={related.title} loading="lazy" />
+                  <span className="related-card-badge">{related.category}</span>
                 </div>
-              </div>
+                <div className="related-card-body">
+                  <h3 className="related-card-title">{related.title}</h3>
+                  <div className="related-card-meta">
+                    <span>{related.publishedAt}</span>
+                    <span className="sep">·</span>
+                    <span>{related.readTime} min read</span>
+                  </div>
+                </div>
+              </article>
             ))}
           </div>
         </aside>

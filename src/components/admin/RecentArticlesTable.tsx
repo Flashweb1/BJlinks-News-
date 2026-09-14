@@ -44,6 +44,8 @@ export default function RecentArticlesTable({ articles, onEdit, onView, onNaviga
   const handleViewClick = (id: string) => {
     if (onView) {
       onView(id)
+    } else if (onNavigate) {
+      onNavigate(`/admin/editor/${id}`)
     }
   }
 

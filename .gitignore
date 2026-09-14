@@ -59,3 +59,8 @@ coverage
 
 # Snapshots (if using Percy/Chromatic via local)
 __snapshots__/*.new.*
+
+# Archives
+*.zip
+*.tar.gz
+*.rar

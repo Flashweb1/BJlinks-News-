@@ -75,20 +75,25 @@ export default function HomePage({ onNavigate }: HomePageProps) {
         </div>
       ) : (
         <div className="home-page-container">
-          {/* Hero Section */}
+          {/* Main Editorial Hero & Editor's Picks Split Layout */}
           {(() => {
             const hero = featured[0]
-            return hero ? <HeroSection article={hero} onNavigate={onNavigate} /> : null
+            if (!hero) return null
+            return (
+              <section className="section hero-editorial-section" aria-label="Top stories">
+                <div className="hero-editorial-grid">
+                  <div className="hero-main-column">
+                    <HeroSection article={hero} onNavigate={onNavigate} />
+                  </div>
+                  {featured.length > 1 && (
+                    <div className="hero-sidebar-column">
+                      <TopStoriesSidebar articles={featured.slice(1, 6)} onNavigate={onNavigate} />
+                    </div>
+                  )}
+                </div>
+              </section>
+            )
           })()}
-
-          {/* Hero + Sidebar Layout */}
-          <div className="section">
-            <div className="hero-sidebar-wrapper">
-              {featured.length > 1 && (
-                <TopStoriesSidebar articles={featured.slice(1, 6)} onNavigate={onNavigate} />
-              )}
-            </div>
-          </div>
 
           {/* Latest Stories Grid */}
           <div className="section">
@@ -118,10 +123,16 @@ export default function HomePage({ onNavigate }: HomePageProps) {
             </div>
           )}
 
-          {/* Opinion Section */}
+          {/* Politics & Policy Section */}
           {politics.length > 0 && (
             <div className="section">
-              <OpinionSection articles={politics} onNavigate={onNavigate} />
+              <OpinionSection
+                articles={politics}
+                onNavigate={onNavigate}
+                title="Politics & Governance"
+                subtitle="National affairs, policy decisions, and state governance updates"
+                categorySlug="politics"
+              />
             </div>
           )}
 
@@ -140,10 +151,16 @@ export default function HomePage({ onNavigate }: HomePageProps) {
             )
           })()}
 
-          {/* Business Opinion Section */}
+          {/* Business & Economy Section */}
           {business.length > 0 && (
             <div className="section">
-              <OpinionSection articles={business} onNavigate={onNavigate} />
+              <OpinionSection
+                articles={business}
+                onNavigate={onNavigate}
+                title="Business & Markets"
+                subtitle="Quarterly trends, commerce, tech innovation, and trade indicators"
+                categorySlug="business"
+              />
             </div>
           )}
 

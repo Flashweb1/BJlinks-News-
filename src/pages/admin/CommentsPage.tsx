@@ -167,7 +167,7 @@ export default function CommentsPage({ onNavigate }: CommentsPageProps) {
         </p>
       </div>
 
-      <div className="admin-stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: '1.5rem' }}>
+      <div className="admin-stats-grid" style={{ marginBottom: '1.5rem' }}>
         <div className="admin-stat-card">
           <div className="admin-stat-icon warning">
             <Flag size={20} />

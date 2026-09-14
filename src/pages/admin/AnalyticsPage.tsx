@@ -199,7 +199,7 @@ export default function AnalyticsPage({ onNavigate }: AnalyticsPageProps) {
 
       {TRAFFIC_NOTICE}
 
-      <div className="admin-stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginTop: '1.25rem' }}>
+      <div className="admin-stats-grid" style={{ marginTop: '1.25rem' }}>
         <StatsCard
           icon={<Eye size={20} />}
           value={analytics.totalArticles.toString()}
@@ -230,7 +230,7 @@ export default function AnalyticsPage({ onNavigate }: AnalyticsPageProps) {
         />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '1.5rem', marginBottom: '1.5rem', marginTop: '1.5rem' }}>
+      <div className="admin-analytics-grid">
         <div className="admin-card">
           <div className="admin-card-header">
             <h2 className="admin-card-title">Published Articles</h2>

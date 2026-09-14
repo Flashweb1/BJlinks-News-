@@ -10,6 +10,7 @@ interface ActivityItem {
 
 interface RecentActivityProps {
   activities?: ActivityItem[]
+  onNavigate?: (path: string) => void
 }
 
 const defaultActivities: ActivityItem[] = [
@@ -43,12 +44,14 @@ const defaultActivities: ActivityItem[] = [
   },
 ]
 
-export default function RecentActivity({ activities = defaultActivities }: RecentActivityProps) {
+export default function RecentActivity({ activities = defaultActivities, onNavigate }: RecentActivityProps) {
   return (
     <div className="card">
       <div className="card-header">
         <h2 className="card-title">Recent Activity</h2>
-        <button className="card-link">View all</button>
+        <button className="card-link" onClick={() => onNavigate?.('/admin/articles')}>
+          View all
+        </button>
       </div>
 
       <div className="card-body">

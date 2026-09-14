@@ -28,7 +28,7 @@ export default function NewsletterCTA() {
   }
 
   return (
-    <section className="newsletter-cta-section">
+    <section className="newsletter-cta-section" id="newsletter-section">
       <div className="newsletter-cta-panel">
         <div className="newsletter-cta-icon">
           <Mail size={32} />

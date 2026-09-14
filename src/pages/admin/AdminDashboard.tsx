@@ -195,7 +195,11 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             <h2 className="analytics-card-title">Publishing Overview</h2>
           </div>
           <div className="card-body">
-            <PublishingOverview />
+            <PublishingOverview
+              published={stats.published}
+              drafts={stats.drafts}
+              inReview={stats.reviews}
+            />
           </div>
         </div>
       </div>
@@ -218,7 +222,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         </div>
 
         <div className="content-sidebar">
-          <RecentActivity />
+          <RecentActivity onNavigate={onNavigate} />
           <TopPerformingStories stories={topStories} />
         </div>
       </div>

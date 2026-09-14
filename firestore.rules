@@ -56,12 +56,12 @@ service cloud.firestore {
                     && request.resource.data.author is string
                     && request.resource.data.body is list
                     && request.resource.data.body.size() > 0
-                    && request.resource.data.body.size() <= 50
+                    && request.resource.data.body.size() <= 200
                     && request.resource.data.tags is list
-                    && request.resource.data.tags.size() <= 10
-                    && request.resource.data.status in ['draft', 'review'];
+                    && request.resource.data.tags.size() <= 20
+                    && request.resource.data.status in ['draft', 'review', 'published'];
 
-      // Update: same constraints; prevent non-admins from publishing
+      // Update: same constraints; only admins can publish
       allow update: if isAdmin()
                     && request.resource.data.slug is string
                     && isValidSlug(request.resource.data.slug)
@@ -72,15 +72,10 @@ service cloud.firestore {
                     && request.resource.data.dek.size() <= 600
                     && request.resource.data.category is string
                     && request.resource.data.body is list
-                    && request.resource.data.body.size() <= 50
+                    && request.resource.data.body.size() <= 200
                     && request.resource.data.tags is list
-                    && request.resource.data.tags.size() <= 10
-                    // Only admins can publish
-                    && (
-                      resource.data.status == 'published'
-                      || request.resource.data.status != 'published'
-                      || isAdmin()
-                    );
+                    && request.resource.data.tags.size() <= 20
+                    && request.resource.data.status in ['draft', 'review', 'published'];
 
       // Delete: admin only
       allow delete: if isAdmin();
@@ -94,6 +89,22 @@ service cloud.firestore {
                       && request.resource.data.text.size() <= 2000;
         allow update, delete: if request.auth.uid == resource.data.uid || isAdmin();
       }
+    }
+
+    // ============================================================
+    // Categories
+    // ============================================================
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ============================================================
+    // Site Configuration
+    // ============================================================
+    match /siteConfig/{configId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // ============================================================

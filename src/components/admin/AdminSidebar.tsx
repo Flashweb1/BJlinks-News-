@@ -1,4 +1,4 @@
-import { LayoutDashboard, FileText, Image, MessageSquare, BarChart3, Users, Settings, PlusCircle, Eye, LogOut, ChevronDown } from 'lucide-react'
+import { LayoutDashboard, FileText, Image, MessageSquare, BarChart3, Users, Settings, PlusCircle, Eye, LogOut, ChevronDown, FolderTree, LayoutTemplate } from 'lucide-react'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../firebase/init'
 
@@ -9,12 +9,28 @@ interface AdminSidebarProps {
   onLogout?: () => void
 }
 
-const navItems = [
+interface NavItem {
+  id: string
+  label: string
+  icon: React.ElementType
+  path: string
+  badge?: number
+}
+
+const mainNavItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
   { id: 'articles', label: 'Articles', icon: FileText, path: '/admin/articles' },
+  { id: 'categories', label: 'Categories', icon: FolderTree, path: '/admin/categories' },
+  { id: 'homepage', label: 'Homepage', icon: LayoutTemplate, path: '/admin/homepage' },
   { id: 'media', label: 'Media', icon: Image, path: '/admin/media' },
   { id: 'comments', label: 'Comments', icon: MessageSquare, path: '/admin/comments', badge: 3 },
+]
+
+const analyticsNavItems: NavItem[] = [
   { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/admin/analytics' },
+]
+
+const managementNavItems: NavItem[] = [
   { id: 'users', label: 'Users', icon: Users, path: '/admin/users' },
   { id: 'settings', label: 'Settings', icon: Settings, path: '/admin/settings' },
 ]
@@ -61,7 +77,7 @@ export default function AdminSidebar({ currentPage, onNavigate, notificationBadg
         <div className="sidebar-nav-section">
           <div className="sidebar-nav-label">Main</div>
 
-          {navItems.slice(0, 4).map((item) => {
+          {mainNavItems.map((item) => {
             const Icon = item.icon
             const isActive = currentPage === item.id
             return (
@@ -83,7 +99,7 @@ export default function AdminSidebar({ currentPage, onNavigate, notificationBadg
         <div className="sidebar-nav-section">
           <div className="sidebar-nav-label">Analytics</div>
 
-          {navItems.slice(4, 5).map((item) => {
+          {analyticsNavItems.map((item) => {
             const Icon = item.icon
             const isActive = currentPage === item.id
             return (
@@ -102,7 +118,7 @@ export default function AdminSidebar({ currentPage, onNavigate, notificationBadg
         <div className="sidebar-nav-section">
           <div className="sidebar-nav-label">Management</div>
 
-          {navItems.slice(5).map((item) => {
+          {managementNavItems.map((item) => {
             const Icon = item.icon
             const isActive = currentPage === item.id
             return (
