@@ -1,5 +1,4 @@
 import React from 'react'
-import AdminLayout from '../components/admin/AdminLayout'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function PendingApprovalPage({ onNavigate }: { onNavigate: (path: string) => void }) {

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import { UserPlus, Trash2, Shield, Mail, Crown, X, Check, XCircle } from 'lucide-react'
+import { Check, XCircle } from 'lucide-react'
 import AdminLayout from '../../components/admin/AdminLayout'
-import { collection, query, where, onSnapshot, deleteDoc, doc, getDocs } from 'firebase/firestore'
-import { db } from '../../firebase/init'
-import { getFunctions, httpsCallable } from 'firebase/functions'
+import { collection, query, onSnapshot, deleteDoc, doc } from 'firebase/firestore'
+import { db, functions } from '../../firebase/init'
+import { httpsCallable } from 'firebase/functions'
 
 interface UsersPageProps {
   onNavigate: (path: string) => void
@@ -31,7 +31,6 @@ export default function UsersPage({ onNavigate }: UsersPageProps) {
     return () => unsub()
   }, [])
 
-  const functions = getFunctions()
   const approveUser = async (uid: string, role: string = 'editor') => {
     try {
       const fn = httpsCallable(functions, 'setApproved')
