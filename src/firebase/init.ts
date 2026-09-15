@@ -1,5 +1,6 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
+import { getFunctions } from 'firebase/functions'
 import {
   getFirestore,
   enableIndexedDbPersistence,
@@ -56,8 +57,6 @@ const app: FirebaseApp = getApps().length
   : initializeApp(resolvedConfig)
 
 export const auth = getAuth(app)
-
-import { getFunctions } from 'firebase/functions'
 
 export const db = getFirestore(app)
 export const functions = getFunctions(app)

@@ -115,6 +115,22 @@ service cloud.firestore {
     }
 
     // ============================================================
+    // Pending approvals
+    // ============================================================
+    match /pendingUsers/{uid} {
+      allow create: if isSignedIn() && request.auth.uid == uid;
+      allow read: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ============================================================
+    // Admins (roles set via Cloud Function / server SDK)
+    // ============================================================
+    match /admins/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+    }
+
+    // ============================================================
     // Catch-all deny
     // ============================================================
     match /{document=**} {

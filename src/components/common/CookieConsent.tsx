@@ -52,133 +52,31 @@ export function CookieConsent() {
         justifyContent: 'center',
       }}
     >
-      <div
-        style={{
-          width: '100%',
-          maxWidth: 960,
-          background: 'rgba(12,10,8,0.96)',
-          color: '#fff',
-          borderRadius: 16,
-          boxShadow:
-            '0 20px 60px -20px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.15)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          padding: '1rem 1.125rem',
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1fr) auto',
-          gap: '0.75rem 1rem',
-          alignItems: 'center',
-          backdropFilter: 'blur(14px)',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            gap: '0.75rem',
-            alignItems: 'flex-start',
-            minWidth: 0,
-          }}
-        >
-          <div
-            style={{
-              flexShrink: 0,
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: 'rgba(255,255,255,0.08)',
-              display: 'grid',
-              placeItems: 'center',
-            }}
-            aria-hidden
-          >
+      <div className="cookie-card">
+        <div className="cookie-content">
+          <div className="cookie-icon" aria-hidden>
             <Cookie size={18} />
           </div>
-          <div style={{ minWidth: 0 }}>
-            <div
-              style={{
-                fontSize: 14,
-                fontWeight: 700,
-                letterSpacing: '-0.01em',
-                marginBottom: 2,
-              }}
-            >
-              We value your privacy
-            </div>
-            <div
-              style={{
-                fontSize: 13,
-                lineHeight: 1.5,
-                color: 'rgba(255,255,255,0.75)',
-              }}
-            >
+          <div className="cookie-copy">
+            <div className="cookie-title">We value your privacy</div>
+            <div className="cookie-desc">
               {cfg.name} uses cookies and similar technologies to enhance your
               browsing experience, analyze site traffic, and serve personalized
-              content. By clicking &quot;Accept&quot;, you consent to our use
+              content. By clicking "Accept", you consent to our use
               of cookies as described in our{' '}
-              <a
-                href="/privacy"
-                style={{ color: '#fff', textDecoration: 'underline' }}
-              >
+              <a href="/privacy" className="cookie-link">
                 Privacy Policy
               </a>
               .
             </div>
           </div>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-          }}
-        >
-          <button
-            onClick={() => write('denied')}
-            aria-label="Decline cookies"
-            title="Decline"
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: 10,
-              background: 'transparent',
-              color: 'rgba(255,255,255,0.7)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              cursor: 'pointer',
-              display: 'grid',
-              placeItems: 'center',
-            }}
-          >
+        <div className="cookie-actions">
+          <button className="cookie-icon-btn" onClick={() => write('denied')} aria-label="Decline cookies" title="Decline">
             <X size={16} />
           </button>
-          <button
-            onClick={() => write('denied')}
-            style={{
-              padding: '0.625rem 0.875rem',
-              borderRadius: 10,
-              background: 'transparent',
-              color: '#fff',
-              border: '1px solid rgba(255,255,255,0.14)',
-              fontWeight: 600,
-              fontSize: 13,
-              cursor: 'pointer',
-            }}
-          >
-            Decline
-          </button>
-          <button
-            onClick={() => write('granted')}
-            style={{
-              padding: '0.625rem 1rem',
-              borderRadius: 10,
-              background: '#fff',
-              color: '#0b0908',
-              border: '1px solid #fff',
-              fontWeight: 700,
-              fontSize: 13,
-              cursor: 'pointer',
-            }}
-          >
-            Accept all
-          </button>
+          <button className="cookie-btn cookie-decline" onClick={() => write('denied')}>Decline</button>
+          <button className="cookie-btn cookie-accept" onClick={() => write('granted')}>Accept all</button>
         </div>
       </div>
     </div>

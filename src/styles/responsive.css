@@ -175,6 +175,44 @@
   }
 }
 
+/* Masthead: ensure wrapping and visible login/newsletter on small screens */
+@media (max-width: 900px) {
+  .masthead-main-inner {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .masthead-side-block.left { display: none; }
+  .masthead-side-block.right { display: flex; flex: 1 1 auto; justify-content: flex-end; align-items: center; gap: 0.5rem; }
+  .masthead-main { padding-top: 0.75rem; padding-bottom: 0.5rem; }
+  .masthead-main .logo { margin: 0; }
+  .masthead-newsletter-btn, .masthead-login-btn { display: inline-flex; padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+}
+
+/* Cookie banner responsive adjustments */
+.cookie-banner { pointer-events: auto; }
+.cookie-banner .cookie-card {
+  width: 100%; max-width: 960px; background: rgba(12,10,8,0.96); color: #fff; border-radius: 16px;
+  box-shadow: 0 20px 60px -20px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,0.08); padding: 1rem 1.125rem; display: grid;
+  grid-template-columns: minmax(0,1fr) auto; gap: 0.75rem 1rem; align-items: center; backdrop-filter: blur(14px);
+}
+.cookie-card .cookie-content { display:flex; gap:0.75rem; align-items:flex-start; min-width:0 }
+.cookie-icon { flex-shrink:0; width:36px; height:36px; border-radius:10px; background: rgba(255,255,255,0.08); display:grid; place-items:center }
+.cookie-title { font-size:14px; font-weight:700; margin-bottom:2px }
+.cookie-desc { font-size:13px; line-height:1.5; color: rgba(255,255,255,0.75) }
+.cookie-actions { display:flex; align-items:center; gap:0.5rem }
+.cookie-icon-btn { width:34px; height:34px; border-radius:10px; background:transparent; color: rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.1); display:grid; place-items:center }
+.cookie-btn { padding:0.625rem 0.875rem; border-radius:10px; background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.14); font-weight:600; font-size:13px; cursor:pointer }
+.cookie-accept { background:#fff; color:#0b0908; border:1px solid #fff; font-weight:700 }
+
+@media (max-width: 640px) {
+  .cookie-banner { padding: 0.75rem 0.5rem calc(0.75rem + env(safe-area-inset-bottom)) }
+  .cookie-banner .cookie-card { grid-template-columns: 1fr; gap: 0.5rem; }
+  .cookie-actions { justify-content: flex-end; }
+  .cookie-btn { padding: 0.5rem 0.75rem; }
+  .cookie-desc { font-size: 13px }
+}
+
 @media (orientation: landscape) {
   /* Reduce padding on landscape */
   .page-content {
