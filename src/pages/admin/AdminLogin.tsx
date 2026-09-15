@@ -1,6 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { Chrome, Lock, Mail, User, ArrowRight } from 'lucide-react'
-import { signInWithGoogle, signInWithEmail, createAccountWithEmail } from '../../firebase/auth'
+import { signInWithGoogle, signInWithEmail, createAccountWithEmail, isApprovedUser } from '../../firebase/auth'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { isAdminEmail } from '../../utils/security'
@@ -46,6 +46,8 @@ export default function AdminLogin({ onNavigate }: AdminLoginProps) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [showReset, setShowReset] = useState(false)
+  const [resetEmail, setResetEmail] = useState('')
 
   useEffect(() => {
     if (user && isAdmin) {
@@ -62,11 +64,6 @@ export default function AdminLogin({ onNavigate }: AdminLoginProps) {
     setError(null)
     setLoading(true)
     try {
-      if (mode === 'signup' && !isAdminEmail(email)) {
-        setError('This email is not authorized as an editor. Please use a pre-approved admin email address.')
-        setLoading(false)
-        return
-      }
       const res =
         mode === 'signup'
           ? await createAccountWithEmail(email, password, name || undefined)
@@ -76,10 +73,15 @@ export default function AdminLogin({ onNavigate }: AdminLoginProps) {
         return
       }
       const goto = onNavigate ?? navigate
-      if (res.user && res.user.email && isAdminEmail(res.user.email)) {
-        goto('/admin')
-      } else {
-        goto('/')
+      if (res.user) {
+        const approved = await isApprovedUser(res.user)
+        if (approved && res.user.email && isAdminEmail(res.user.email)) {
+          goto('/admin')
+        } else if (approved) {
+          goto('/')
+        } else {
+          goto('/pending')
+        }
       }
     } catch (err: unknown) {
       setError(errorMessage(err))
@@ -99,10 +101,13 @@ export default function AdminLogin({ onNavigate }: AdminLoginProps) {
       }
       const goto = onNavigate ?? navigate
       const emailAddr = res.user?.email
-      if (emailAddr && isAdminEmail(emailAddr)) {
+      const approved = res.user ? await isApprovedUser(res.user) : false
+      if (approved && emailAddr && isAdminEmail(emailAddr)) {
         goto('/admin')
-      } else {
+      } else if (approved) {
         goto('/')
+      } else {
+        goto('/pending')
       }
     } catch (err: unknown) {
       setError(errorMessage(err))
@@ -222,11 +227,44 @@ export default function AdminLogin({ onNavigate }: AdminLoginProps) {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    minLength={6}
+                    minLength={8}
                     required
                   />
                 </div>
               </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
+                <button type="button" className="link-btn" onClick={() => { setShowReset(!showReset); setError(null) }}>
+                  Forgot password?
+                </button>
+                {mode === 'signin' && (
+                  <button type="button" className="link-btn" onClick={() => { setMode('signup'); setError(null) }}>
+                    Create account
+                  </button>
+                )}
+              </div>
+
+              {showReset && (
+                <div style={{ marginTop: '1rem', padding: '0.75rem', border: '1px solid var(--muted)', borderRadius: 6 }}>
+                  <label htmlFor="reset-email">Enter your email to reset password</label>
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                    <input id="reset-email" type="email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} placeholder="you@domain.com" />
+                    <button type="button" className="btn-submit" onClick={async () => {
+                      setError(null)
+                      setLoading(true)
+                      try {
+                        const { error: err } = await (await import('../../firebase/auth')).sendPasswordReset(resetEmail)
+                        if (err) setError(errorMessage(err))
+                        else setError('Password reset email sent — check your inbox.')
+                      } catch (e) {
+                        setError(errorMessage(e))
+                      } finally {
+                        setLoading(false)
+                      }
+                    }}>Send</button>
+                  </div>
+                </div>
+              )}
 
               {error && (
                 <div className="error-alert" role="alert">

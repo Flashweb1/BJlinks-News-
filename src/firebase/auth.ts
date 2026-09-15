@@ -3,13 +3,17 @@ import {
   signInWithPopup,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  sendEmailVerification,
   signOut as fbSignOut,
   onAuthStateChanged,
   updateProfile,
   type Auth,
   type User,
 } from 'firebase/auth'
-import { auth } from './init'
+import { auth, db } from './init'
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore'
+import { getIdTokenResult } from 'firebase/auth'
 import { isAdminEmail } from '../utils/security'
 import { isValidEmail } from '../utils/security'
 
@@ -31,7 +35,7 @@ export const signInWithEmail = async (
   email: string,
   password: string
 ): Promise<AuthResult<User>> => {
-  if (!isValidEmail(email) || !password || password.length < 6) {
+  if (!isValidEmail(email) || !password || password.length < 8) {
     return { user: null, error: new Error('Invalid email or password') }
   }
   try {
@@ -56,9 +60,41 @@ export const createAccountWithEmail = async (
     if (displayName && result.user) {
       await updateProfile(result.user, { displayName })
     }
+    try {
+      // Send verification email after account creation
+      if (result.user) await sendEmailVerification(result.user)
+    } catch (e) {
+      // Non-fatal: verification email failed to send
+      console.warn('sendEmailVerification failed', e)
+    }
+    
+    // Create a pendingUsers document for admin approval
+    try {
+      if (result.user) {
+        const puRef = doc(db, 'pendingUsers', result.user.uid)
+        await setDoc(puRef, {
+          email: result.user.email || null,
+          displayName: displayName || result.user.displayName || null,
+          createdAt: serverTimestamp(),
+          emailVerified: result.user.emailVerified || false,
+        })
+      }
+    } catch (e) {
+      console.warn('failed to create pendingUsers doc', e)
+    }
     return { user: result.user, error: null }
   } catch (error: unknown) {
     return { user: null, error }
+  }
+}
+
+export const sendPasswordReset = async (email: string): Promise<{ error: unknown }> => {
+  if (!isValidEmail(email)) return { error: new Error('Invalid email') }
+  try {
+    await sendPasswordResetEmail(auth, email)
+    return { error: null }
+  } catch (error: unknown) {
+    return { error }
   }
 }
 
@@ -82,6 +118,24 @@ export const isAdminUser = (user: User | unknown | null): boolean => {
   const u = user as { email?: string | null } | null
   const email = u && 'email' in u ? u.email : null
   return isAdminEmail(email ?? null)
+}
+
+export const isApprovedUser = async (user: User | null): Promise<boolean> => {
+  if (!user) return false
+  try {
+    // Check admins collection by UID
+    const adm = await getDoc(doc(db, 'admins', user.uid))
+    if (adm.exists()) return true
+  } catch (e) {
+    // ignore
+  }
+  try {
+    const tokenRes = await getIdTokenResult(user)
+    if (tokenRes && (tokenRes.claims as any).approved) return true
+  } catch (e) {
+    // ignore
+  }
+  return false
 }
 
 export const getIdToken = async (user: unknown) => {

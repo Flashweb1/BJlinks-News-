@@ -57,7 +57,10 @@ const app: FirebaseApp = getApps().length
 
 export const auth = getAuth(app)
 
+import { getFunctions } from 'firebase/functions'
+
 export const db = getFirestore(app)
+export const functions = getFunctions(app)
 try {
   void enableIndexedDbPersistence(db).catch((err: { code?: string }) => {
     const code = err?.code ?? 'unknown'

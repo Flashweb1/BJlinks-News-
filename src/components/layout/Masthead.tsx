@@ -105,6 +105,14 @@ export default function Masthead({ onNavigate }: MastheadProps) {
             >
               Subscribe
             </button>
+            <button
+              type="button"
+              className="masthead-login-btn"
+              onClick={() => onNavigate('/admin/login')}
+              style={{ marginLeft: '0.5rem' }}
+            >
+              Login
+            </button>
           </div>
         </div>
       </div>

@@ -15,14 +15,21 @@ service cloud.firestore {
       return request.auth.token.email.lower();
     }
 
-    // Add emails here AND in VITE_ADMIN_EMAILS so they stay in sync.
-    // For stronger security, migrate to a Firestore 'admins' collection
-    // or Firebase custom claims (requires Cloud Functions to set).
+    // Admin check:
+    // 1) First check a Firestore 'admins' collection with doc id == UID (recommended).
+    // 2) Fallback to the hard-coded email allowlist for backwards compatibility.
+    // For stronger security consider using Firebase custom claims set by an admin backend.
     function isAdmin() {
       let allowed = [
         'admin@bjlinksnews.com',
       ];
-      return isSignedIn() && email() in allowed;
+      // Prefer custom claim 'approved' + role checks, then admins collection, then email allowlist
+      return isSignedIn() && (
+        // token.approved claim (must be true)
+        (request.auth.token.approved == true && request.auth.token.role == 'admin')
+        || exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        || email() in allowed
+      );
     }
 
     function isValidSlug(s) {

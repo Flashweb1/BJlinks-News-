@@ -5,6 +5,7 @@ import { onAuthStateChange, signOutUser, isAdminUser } from '../firebase/auth'
 interface AuthContextType {
   user: User | null
   isAdmin: boolean
+  isApproved: boolean
   loading: boolean
   signOut: () => Promise<void>
 }
@@ -19,6 +20,7 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isApproved, setIsApproved] = useState(false)
   const [loading, setLoading] = useState(true)
 
   const DEV_BYPASS_AUTH =
@@ -35,6 +37,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChange((currentUser) => {
       setUser(currentUser as User | null)
       setIsAdmin(isAdminUser(currentUser))
+      // asynchronous check for approval
+      if (currentUser) {
+        void (async () => {
+          try {
+            const approved = await (await import('../firebase/auth')).isApprovedUser(currentUser as User)
+            setIsApproved(approved)
+          } catch {
+            setIsApproved(false)
+          }
+        })()
+      } else {
+        setIsApproved(false)
+      }
       setLoading(false)
     })
 
@@ -46,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, loading, signOut: handleSignOut }}>
+    <AuthContext.Provider value={{ user, isAdmin, isApproved, loading, signOut: handleSignOut }}>
       {children}
     </AuthContext.Provider>
   )
