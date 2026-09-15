@@ -59,7 +59,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: var(--sidebar-width);
+  width: min(var(--sidebar-width), 85vw);
   height: 100vh;
   background-color: var(--admin-sidebar-bg);
   border-right: 1px solid var(--admin-sidebar-border);
