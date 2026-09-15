@@ -259,6 +259,14 @@
   .utility-weather, .utility-edition { display: none; }
 }
 
+/* On very small screens prefer the masthead main hamburger over the top utility one */
+@media (max-width: 640px) {
+  .masthead-utility-bar .mobile-menu { display: none; }
+  .masthead-main .mobile-menu { display: inline-flex; }
+  .masthead-main .main-mobile-menu { display: inline-flex; }
+  .masthead-utility-bar { padding-top: 0.55rem; padding-bottom: 0.55rem; }
+}
+
 /* ═══════════════════════════════════════════════════════════
    NAVIGATION
    ═══════════════════════════════════════════════════════════ */

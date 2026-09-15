@@ -92,6 +92,15 @@ export default function Masthead({ onNavigate }: MastheadProps) {
 
           <div className="masthead-side-block right">
             <button
+              className="icon-btn mobile-menu main-mobile-menu"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-nav-panel"
+            >
+              {menuOpen ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
+            </button>
+            <button
               type="button"
               className="masthead-newsletter-btn"
               onClick={() => {
